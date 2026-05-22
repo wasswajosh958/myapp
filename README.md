@@ -12,6 +12,11 @@ An Android application built with Jetpack Compose featuring a complete authentic
     - Expense Analytics visualization.
     - Recent transactions list with categories.
     - Savings goals progress tracking.
+- **Transactions List Screen**:
+    - Detailed view of all transactions grouped by date.
+    - Search functionality with voice command support.
+    - Advanced filtering (Income, Expense, Pending).
+    - Swipe-to-delete and swipe-to-edit actions.
 - **Navigation**: Seamless transition between Home, Transactions, Analytics, Goals, and Settings.
 - **UI/UX**: 
     - Fully scrollable screens with keyboard awareness (`imePadding`).

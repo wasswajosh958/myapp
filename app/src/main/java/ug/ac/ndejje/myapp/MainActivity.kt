@@ -57,7 +57,13 @@ fun AppNavigation() {
                     navController.navigate("login") {
                         popUpTo("home") { inclusive = true }
                     }
-                }
+                },
+                onNavigateToTransactions = { navController.navigate("transactions") }
+            )
+        }
+        composable("transactions") {
+            TransactionsScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

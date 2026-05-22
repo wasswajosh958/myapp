@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onLogout: () -> Unit) {
+fun HomeScreen(onLogout: () -> Unit, onNavigateToTransactions: () -> Unit) {
     val context = LocalContext.current
     val assistant = remember { AiAssistant(context) }
     val scope = rememberCoroutineScope()
@@ -119,7 +119,12 @@ fun HomeScreen(onLogout: () -> Unit) {
                         icon = { Icon(icons[index], contentDescription = item) },
                         label = { Text(item) },
                         selected = selectedItem == index,
-                        onClick = { selectedItem = index }
+                        onClick = { 
+                            selectedItem = index
+                            if (item == "Transactions") {
+                                onNavigateToTransactions()
+                            }
+                        }
                     )
                 }
             }
@@ -163,7 +168,7 @@ fun HomeScreen(onLogout: () -> Unit) {
 
             // 4. Recent Transactions
             item {
-                SectionHeader("Recent Transactions", viewAll = true)
+                SectionHeader("Recent Transactions", viewAll = true, onViewAll = onNavigateToTransactions)
             }
             items(getMockTransactions()) { transaction ->
                 TransactionItem(transaction)
@@ -222,7 +227,7 @@ fun SummaryMiniCard(title: String, amount: String, color: Color, modifier: Modif
 }
 
 @Composable
-fun SectionHeader(title: String, viewAll: Boolean = false) {
+fun SectionHeader(title: String, viewAll: Boolean = false, onViewAll: () -> Unit = {}) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -230,7 +235,7 @@ fun SectionHeader(title: String, viewAll: Boolean = false) {
     ) {
         Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         if (viewAll) {
-            TextButton(onClick = { }) {
+            TextButton(onClick = onViewAll) {
                 Text("View All")
             }
         }
@@ -342,13 +347,9 @@ fun AlertCard(message: String) {
     }
 }
 
-data class Transaction(val title: String, val category: String, val amount: String, val date: String, val isExpense: Boolean)
-
-data class ChatMessage(val text: String, val isUser: Boolean)
-
 fun getMockTransactions() = listOf(
-    Transaction("Airtime", "Utilities", "UGX 10,000", "May 22", true),
-    Transaction("Salary", "Income", "UGX 2,000,000", "May 21", false),
-    Transaction("Lunch", "Food", "UGX 15,000", "May 20", true),
-    Transaction("Fuel", "Transport", "UGX 50,000", "May 19", true)
+    Transaction(1, "Airtime", "Utilities", "UGX 10,000", "May 22", "2:30 PM", true),
+    Transaction(2, "Salary", "Income", "UGX 2,000,000", "May 21", "9:00 AM", false),
+    Transaction(3, "Lunch", "Food", "UGX 15,000", "May 20", "1:30 PM", true),
+    Transaction(4, "Fuel", "Transport", "UGX 50,000", "May 19", "8:15 AM", true)
 )
