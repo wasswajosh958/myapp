@@ -48,4 +48,6 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.mediapipe.genai)
+    implementation(libs.play.services.mlkit.speech)
 }

@@ -4,8 +4,10 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -14,17 +16,76 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(onLogout: () -> Unit) {
+    val context = LocalContext.current
+    val assistant = remember { AiAssistant(context) }
+    val scope = rememberCoroutineScope()
+    var showAiChat by remember { mutableStateOf(false) }
+    var chatMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
+    var userQuery by remember { mutableStateOf("") }
+    
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Home", "Transactions", "Analytics", "Goals", "Settings")
     val icons = listOf(Icons.Filled.Home, Icons.Filled.CreditCard, Icons.Filled.BarChart, Icons.Filled.TrackChanges, Icons.Filled.Settings)
+
+    if (showAiChat) {
+        ModalBottomSheet(
+            onDismissRequest = { showAiChat = false },
+            sheetState = rememberModalBottomSheetState()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Text("FinTrack AI Assistant", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(chatMessages) { msg ->
+                        Text(
+                            text = if (msg.isUser) "You: ${msg.text}" else "AI: ${msg.text}",
+                            color = if (msg.isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                }
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = userQuery,
+                        onValueChange = { userQuery = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Ask me about your spending...") }
+                    )
+                    IconButton(onClick = { /* Handle Voice */ }) {
+                        Icon(Icons.Filled.Mic, contentDescription = "Voice")
+                    }
+                    Button(onClick = {
+                        val q = userQuery
+                        userQuery = ""
+                        chatMessages = chatMessages + ChatMessage(q, true)
+                        scope.launch {
+                            val response = assistant.getResponse(q, "Balance: UGX 2.45M")
+                            chatMessages = chatMessages + ChatMessage(response, false)
+                            assistant.speak(response)
+                        }
+                    }) {
+                        Text("Send")
+                    }
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -36,6 +97,9 @@ fun HomeScreen(onLogout: () -> Unit) {
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showAiChat = true }) {
+                        Icon(Icons.Filled.AutoAwesome, contentDescription = "AI Assistant")
+                    }
                     IconButton(onClick = { /* Handle Notifications */ }) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
                     }
@@ -279,6 +343,8 @@ fun AlertCard(message: String) {
 }
 
 data class Transaction(val title: String, val category: String, val amount: String, val date: String, val isExpense: Boolean)
+
+data class ChatMessage(val text: String, val isUser: Boolean)
 
 fun getMockTransactions() = listOf(
     Transaction("Airtime", "Utilities", "UGX 10,000", "May 22", true),

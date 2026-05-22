@@ -1,21 +1,26 @@
-# My Application
+# FinTrack
 
-An Android application built with Jetpack Compose featuring a complete authentication flow.
+An Android application built with Jetpack Compose featuring a complete authentication flow and a Hybrid AI Assistant.
 
 ## Features
+- **Hybrid AI Assistant**: A conversational assistant that handles financial queries on-device (private) and general knowledge in the cloud.
+- **Voice Feedback**: Integrated Text-to-Speech (TTS) so the AI reads its responses aloud.
 - **Login Screen**: Secure login with password visibility toggle and field validation.
 - **Registration Screen**: Create an account with email and password (minimum 8 characters). Includes password matching validation.
-- **Home Screen**: A welcome landing page after successful authentication.
-- **Navigation**: Seamless transition between authentication states using Jetpack Navigation.
+- **Home Screen Dashboard**: 
+    - Real-time financial summary cards (Balance, Income, Expenses, Savings).
+    - Expense Analytics visualization.
+    - Recent transactions list with categories.
+    - Savings goals progress tracking.
+- **Navigation**: Seamless transition between Home, Transactions, Analytics, Goals, and Settings.
 - **UI/UX**: 
-    - Fully scrollable screens to support various device sizes.
-    - **Keyboard Awareness**: Optimized layout with `imePadding` and `adjustResize` to ensure text fields remain visible while typing.
-    - **System Integration**: Proper handling of system bars for a clean, edge-to-edge look.
+    - Fully scrollable screens with keyboard awareness (`imePadding`).
+    - Custom App Icon and Material 3 design components.
     - Password preview (show/hide) toggle.
-    - Interactive feedback via Dialogs.
-    - Material 3 design components.
 
 ## Tech Stack
+- **AI**: Google MediaPipe GenAI (On-device LLM), ML Kit Speech.
+- **Voice**: Android TextToSpeech (TTS).
 - **Language**: Kotlin
 - **UI Framework**: Jetpack Compose
 - **Navigation**: Jetpack Navigation Compose
