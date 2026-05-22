@@ -9,6 +9,8 @@ An Android application built with Jetpack Compose featuring a complete authentic
 - **Navigation**: Seamless transition between authentication states using Jetpack Navigation.
 - **UI/UX**: 
     - Fully scrollable screens to support various device sizes.
+    - **Keyboard Awareness**: Optimized layout with `imePadding` and `adjustResize` to ensure text fields remain visible while typing.
+    - **System Integration**: Proper handling of system bars for a clean, edge-to-edge look.
     - Password preview (show/hide) toggle.
     - Interactive feedback via Dialogs.
     - Material 3 design components.
