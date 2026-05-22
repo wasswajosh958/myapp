@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-19:12
-INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-19:12
-INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-19:12
-INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-19:12
+ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-22:12
+INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-22:12
+INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-22:12
+INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:1-22:12
 MERGED from [androidx.navigation:navigation-common:2.7.7] C:\Users\wassw\.gradle\caches\9.0.0\transforms\f18452c73330206aed98f8997a79980c\transformed\navigation-common-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-runtime:2.7.7] C:\Users\wassw\.gradle\caches\9.0.0\transforms\8095f24734d8bb1dbb64916144e441ab\transformed\navigation-runtime-2.7.7\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.navigation:navigation-common-ktx:2.7.7] C:\Users\wassw\.gradle\caches\9.0.0\transforms\9fa2af6106374b17bd8a7abc2a152378\transformed\navigation-common-ktx-2.7.7\AndroidManifest.xml:2:1-7:12
@@ -60,8 +60,8 @@ MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\wassw\.gradle\ca
 	xmlns:android
 		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:2:11-69
 application
-ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:4:5-17:19
-INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:4:5-17:19
+ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:4:5-20:19
+INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:4:5-20:19
 MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\wassw\.gradle\caches\9.0.0\transforms\ad8a59157a957a879c424885299c6c9a\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
 MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\wassw\.gradle\caches\9.0.0\transforms\ad8a59157a957a879c424885299c6c9a\transformed\emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
 MERGED from [androidx.core:core:1.12.0] C:\Users\wassw\.gradle\caches\9.0.0\transforms\6550cde173c8f12970b49142e50b63de\transformed\core-1.12.0\AndroidManifest.xml:28:5-89
@@ -79,29 +79,35 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\wassw\.gradle\cach
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] C:\Users\wassw\.gradle\caches\9.0.0\transforms\6550cde173c8f12970b49142e50b63de\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:7:9-35
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:9:9-35
 	android:label
-		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:6:9-39
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:7:9-33
+	android:roundIcon
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:8:9-54
+	android:icon
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:6:9-43
 	android:allowBackup
 		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:5:9-35
 	android:theme
-		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:8:9-60
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:10:9-60
 activity#ug.ac.ndejje.myapp.MainActivity
-ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:9:9-16:20
+ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:11:9-19:20
+	android:windowSoftInputMode
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:14:13-55
 	android:exported
-		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:11:13-36
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:13:13-36
 	android:name
-		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:10:13-41
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:12:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:12:13-15:29
+ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:15:13-18:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:13:17-69
+ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:16:17-69
 	android:name
-		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:13:25-66
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:16:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:14:17-77
+ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:17:17-77
 	android:name
-		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:14:27-74
+		ADDED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml:17:27-74
 uses-sdk
 INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\wassw\OneDrive\Documents\myapp\app\src\main\AndroidManifest.xml

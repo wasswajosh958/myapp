@@ -123,25 +123,6 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
 }
 
 @Composable
-fun HomeScreen(onLogout: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Welcome to the App!", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(text = "You have successfully logged in.")
-        Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = onLogout) {
-            Text("Logout")
-        }
-    }
-}
-
-@Composable
 fun RegisterScreen(onNavigateBack: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
