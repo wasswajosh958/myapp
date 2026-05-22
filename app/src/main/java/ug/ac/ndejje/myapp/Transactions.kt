@@ -21,7 +21,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionsScreen(onNavigateBack: () -> Unit, onNavigateToAddTransaction: () -> Unit) {
+fun TransactionsScreen(currency: String, onNavigateBack: () -> Unit, onNavigateToAddTransaction: () -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Income", "Expense", "Pending")
@@ -105,6 +105,7 @@ fun TransactionsScreen(onNavigateBack: () -> Unit, onNavigateToAddTransaction: (
                     itemsIndexed(items) { index, transaction ->
                         SwipeableTransactionItem(
                             transaction = transaction,
+                            currency = currency,
                             onDelete = {
                                 val removedTransaction = transaction
                                 transactions.remove(transaction)
@@ -170,6 +171,7 @@ fun SearchBar(
 @Composable
 fun SwipeableTransactionItem(
     transaction: Transaction,
+    currency: String,
     onDelete: () -> Unit,
     onEdit: () -> Unit
 ) {
@@ -222,12 +224,12 @@ fun SwipeableTransactionItem(
             }
         }
     ) {
-        TransactionListItem(transaction)
+        TransactionListItem(transaction, currency)
     }
 }
 
 @Composable
-fun TransactionListItem(transaction: Transaction) {
+fun TransactionListItem(transaction: Transaction, currency: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -266,7 +268,7 @@ fun TransactionListItem(transaction: Transaction) {
             
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    (if (transaction.isExpense) "-" else "+") + transaction.amount,
+                    transaction.getFormattedAmount(currency),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     color = if (transaction.isExpense) Color.Red else Color(0xFF4CAF50)
@@ -278,10 +280,10 @@ fun TransactionListItem(transaction: Transaction) {
 }
 
 fun getFullMockTransactions() = listOf(
-    Transaction(1, "Starbucks", "Food", "$5.25", "Today", "2:30 PM", true),
-    Transaction(2, "Uber", "Transport", "$12.99", "Today", "8:15 AM", true),
-    Transaction(3, "Salary", "Income", "$3,200", "Yesterday", "9:00 AM", false),
-    Transaction(4, "Whole Foods", "Groceries", "$87.43", "Yesterday", "6:45 PM", true),
-    Transaction(5, "Netflix", "Subscription", "$15.99", "Apr 10", "Recurring - Monthly", true),
-    Transaction(6, "Rent", "Housing", "$1,200", "Apr 1", "Monthly", true, isPending = true)
+    Transaction(1, "Starbucks", "Food", 5.25, "Today", "2:30 PM", true),
+    Transaction(2, "Uber", "Transport", 12.99, "Today", "8:15 AM", true),
+    Transaction(3, "Salary", "Income", 3200.0, "Yesterday", "9:00 AM", false),
+    Transaction(4, "Whole Foods", "Groceries", 87.43, "Yesterday", "6:45 PM", true),
+    Transaction(5, "Netflix", "Subscription", 15.99, "Apr 10", "Recurring - Monthly", true),
+    Transaction(6, "Rent", "Housing", 1200.0, "Apr 1", "Monthly", true, isPending = true)
 )

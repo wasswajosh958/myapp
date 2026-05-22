@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    var selectedCurrency by remember { mutableStateOf("Shs") }
+
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {
             LoginScreen(
@@ -53,23 +55,27 @@ fun AppNavigation() {
         }
         composable("home") {
             HomeScreen(
+                currency = selectedCurrency,
                 onLogout = { 
                     navController.navigate("login") {
                         popUpTo("home") { inclusive = true }
                     }
                 },
                 onNavigateToTransactions = { navController.navigate("transactions") },
-                onNavigateToAddTransaction = { navController.navigate("add_transaction") }
+                onNavigateToAddTransaction = { navController.navigate("add_transaction") },
+                onCurrencyChange = { selectedCurrency = it }
             )
         }
         composable("transactions") {
             TransactionsScreen(
+                currency = selectedCurrency,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToAddTransaction = { navController.navigate("add_transaction") }
             )
         }
         composable("add_transaction") {
             AddEditTransactionScreen(
+                currency = selectedCurrency,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

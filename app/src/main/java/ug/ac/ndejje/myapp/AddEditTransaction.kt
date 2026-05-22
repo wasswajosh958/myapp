@@ -22,9 +22,10 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditTransactionScreen(onNavigateBack: () -> Unit) {
+fun AddEditTransactionScreen(currency: String, onNavigateBack: () -> Unit) {
     var transactionType by remember { mutableStateOf("Expense") }
-    var amount by remember { mutableStateOf("0.00") }
+    var amountValue by remember { mutableStateOf(0.0) }
+    var amountString by remember { mutableStateOf("0.00") }
     var category by remember { mutableStateOf("Food") }
     var account by remember { mutableStateOf("Cash") }
     var note by remember { mutableStateOf("") }
@@ -97,7 +98,7 @@ fun AddEditTransactionScreen(onNavigateBack: () -> Unit) {
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     Text(
-                        text = "$$amount",
+                        text = "$currency $amountString",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -107,14 +108,14 @@ fun AddEditTransactionScreen(onNavigateBack: () -> Unit) {
             // Numeric Keypad
             NumericKeypad(
                 onNumberClick = { num ->
-                    if (amount == "0.00") amount = num
-                    else amount += num
+                    if (amountString == "0.00") amountString = num
+                    else amountString += num
                 },
                 onDeleteClick = {
-                    if (amount.length > 1) amount = amount.dropLast(1)
-                    else amount = "0.00"
+                    if (amountString.length > 1) amountString = amountString.dropLast(1)
+                    else amountString = "0.00"
                 },
-                onClearClick = { amount = "0.00" }
+                onClearClick = { amountString = "0.00" }
             )
 
             // Category and Account

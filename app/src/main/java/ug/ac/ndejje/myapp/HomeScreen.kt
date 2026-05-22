@@ -25,9 +25,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    currency: String,
     onLogout: () -> Unit, 
     onNavigateToTransactions: () -> Unit,
-    onNavigateToAddTransaction: () -> Unit
+    onNavigateToAddTransaction: () -> Unit,
+    onCurrencyChange: (String) -> Unit
 ) {
     val context = LocalContext.current
     val assistant = remember { AiAssistant(context) }
@@ -39,6 +41,9 @@ fun HomeScreen(
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Home", "Transactions", "Analytics", "Goals", "Settings")
     val icons = listOf(Icons.Filled.Home, Icons.Filled.CreditCard, Icons.Filled.BarChart, Icons.Filled.TrackChanges, Icons.Filled.Settings)
+
+    var showCurrencyDropdown by remember { mutableStateOf(false) }
+    val currencies = listOf("Shs", "$", "€", "£")
 
     if (showAiChat) {
         ModalBottomSheet(
@@ -104,6 +109,25 @@ fun HomeScreen(
                     IconButton(onClick = { showAiChat = true }) {
                         Icon(Icons.Filled.AutoAwesome, contentDescription = "AI Assistant")
                     }
+                    Box {
+                        IconButton(onClick = { showCurrencyDropdown = true }) {
+                            Icon(Icons.Filled.Payments, contentDescription = "Currency")
+                        }
+                        DropdownMenu(
+                            expanded = showCurrencyDropdown,
+                            onDismissRequest = { showCurrencyDropdown = false }
+                        ) {
+                            currencies.forEach { curr ->
+                                DropdownMenuItem(
+                                    text = { Text(curr) },
+                                    onClick = {
+                                        onCurrencyChange(curr)
+                                        showCurrencyDropdown = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                     IconButton(onClick = { /* Handle Notifications */ }) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
                     }
@@ -150,7 +174,7 @@ fun HomeScreen(
 
             // 2. Financial Summary Cards
             item {
-                BalanceCard(balance = "UGX 2,450,000")
+                BalanceCard(balance = "$currency 2,450,000")
             }
 
             item {
@@ -158,9 +182,9 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryMiniCard("Income", "UGX 4.0M", Color(0xFF4CAF50), Modifier.weight(1f))
-                    SummaryMiniCard("Expenses", "UGX 1.5M", Color(0xFFF44336), Modifier.weight(1f))
-                    SummaryMiniCard("Savings", "UGX 900K", Color(0xFF2196F3), Modifier.weight(1f))
+                    SummaryMiniCard("Income", "$currency 4.0M", Color(0xFF4CAF50), Modifier.weight(1f))
+                    SummaryMiniCard("Expenses", "$currency 1.5M", Color(0xFFF44336), Modifier.weight(1f))
+                    SummaryMiniCard("Savings", "$currency 900K", Color(0xFF2196F3), Modifier.weight(1f))
                 }
             }
 
@@ -175,7 +199,7 @@ fun HomeScreen(
                 SectionHeader("Recent Transactions", viewAll = true, onViewAll = onNavigateToTransactions)
             }
             items(getMockTransactions()) { transaction ->
-                TransactionItem(transaction)
+                TransactionItem(transaction, currency)
             }
 
             // 5. Savings Goals
@@ -280,7 +304,7 @@ fun MockBar(heightPercent: Float, color: Color) {
 }
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: Transaction, currency: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -308,7 +332,7 @@ fun TransactionItem(transaction: Transaction) {
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                (if (transaction.isExpense) "-" else "+") + transaction.amount,
+                transaction.getFormattedAmount(currency),
                 fontWeight = FontWeight.Bold,
                 color = if (transaction.isExpense) Color.Red else Color.Green
             )
@@ -352,8 +376,8 @@ fun AlertCard(message: String) {
 }
 
 fun getMockTransactions() = listOf(
-    Transaction(1, "Airtime", "Utilities", "UGX 10,000", "May 22", "2:30 PM", true),
-    Transaction(2, "Salary", "Income", "UGX 2,000,000", "May 21", "9:00 AM", false),
-    Transaction(3, "Lunch", "Food", "UGX 15,000", "May 20", "1:30 PM", true),
-    Transaction(4, "Fuel", "Transport", "UGX 50,000", "May 19", "8:15 AM", true)
+    Transaction(1, "Airtime", "Utilities", 10000.0, "May 22", "2:30 PM", true),
+    Transaction(2, "Salary", "Income", 2000000.0, "May 21", "9:00 AM", false),
+    Transaction(3, "Lunch", "Food", 15000.0, "May 20", "1:30 PM", true),
+    Transaction(4, "Fuel", "Transport", 50000.0, "May 19", "8:15 AM", true)
 )
