@@ -19,9 +19,9 @@ An Android application built with Jetpack Compose featuring a complete authentic
     - Password preview (show/hide) toggle.
 
 ## Tech Stack
-- **AI**: Google MediaPipe GenAI (On-device LLM), ML Kit Speech.
+- **AI**: Google MediaPipe GenAI (On-device LLM), ML Kit GenAI Speech Recognition.
 - **Voice**: Android TextToSpeech (TTS).
-- **Language**: Kotlin
+- **Language**: Kotlin 2.1.0+
 - **UI Framework**: Jetpack Compose
 - **Navigation**: Jetpack Navigation Compose
 - **Build System**: Gradle (Kotlin DSL) with Version Catalogs

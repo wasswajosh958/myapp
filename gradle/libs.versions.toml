@@ -1,11 +1,11 @@
 [versions]
 agp = "8.5.2"
-kotlin = "2.0.0"
+kotlin = "2.1.0"
 composeBom = "2024.02.01"
 activityCompose = "1.8.2"
 navigationCompose = "2.7.7"
 mediapipeGenai = "0.10.14"
-playServicesMlkitSpeech = "16.0.0"
+genaiSpeechRecognition = "1.0.0-alpha1"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -17,7 +17,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 mediapipe-genai = { group = "com.google.mediapipe", name = "tasks-genai", version.ref = "mediapipeGenai" }
-play-services-mlkit-speech = { group = "com.google.android.gms", name = "play-services-mlkit-speech-recognition", version.ref = "playServicesMlkitSpeech" }
+play-services-mlkit-speech = { group = "com.google.mlkit", name = "genai-speech-recognition", version.ref = "genaiSpeechRecognition" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
