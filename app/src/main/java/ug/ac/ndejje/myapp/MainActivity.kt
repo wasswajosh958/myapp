@@ -58,11 +58,18 @@ fun AppNavigation() {
                         popUpTo("home") { inclusive = true }
                     }
                 },
-                onNavigateToTransactions = { navController.navigate("transactions") }
+                onNavigateToTransactions = { navController.navigate("transactions") },
+                onNavigateToAddTransaction = { navController.navigate("add_transaction") }
             )
         }
         composable("transactions") {
             TransactionsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAddTransaction = { navController.navigate("add_transaction") }
+            )
+        }
+        composable("add_transaction") {
+            AddEditTransactionScreen(
                 onNavigateBack = { navController.popBackStack() }
             )
         }

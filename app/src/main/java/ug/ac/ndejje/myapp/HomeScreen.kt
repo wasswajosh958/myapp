@@ -24,7 +24,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(onLogout: () -> Unit, onNavigateToTransactions: () -> Unit) {
+fun HomeScreen(
+    onLogout: () -> Unit, 
+    onNavigateToTransactions: () -> Unit,
+    onNavigateToAddTransaction: () -> Unit
+) {
     val context = LocalContext.current
     val assistant = remember { AiAssistant(context) }
     val scope = rememberCoroutineScope()
@@ -130,7 +134,7 @@ fun HomeScreen(onLogout: () -> Unit, onNavigateToTransactions: () -> Unit) {
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /* Quick Add */ }) {
+            FloatingActionButton(onClick = onNavigateToAddTransaction) {
                 Icon(Icons.Filled.Add, contentDescription = "Add")
             }
         }

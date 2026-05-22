@@ -17,6 +17,12 @@ An Android application built with Jetpack Compose featuring a complete authentic
     - Search functionality with voice command support.
     - Advanced filtering (Income, Expense, Pending).
     - Swipe-to-delete and swipe-to-edit actions.
+- **Add/Edit Transaction Screen**:
+    - Create or modify expenses, income, and transfers.
+    - Custom numeric keypad for fast amount entry.
+    - AI-powered "Quick-Add" suggestions based on spending habits.
+    - Voice-to-form integration ("Add $45 for groceries at Safeway yesterday").
+    - Attachment support for receipts.
 - **Navigation**: Seamless transition between Home, Transactions, Analytics, Goals, and Settings.
 - **UI/UX**: 
     - Fully scrollable screens with keyboard awareness (`imePadding`).

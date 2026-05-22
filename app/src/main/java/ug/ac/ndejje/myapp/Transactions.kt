@@ -21,7 +21,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionsScreen(onNavigateBack: () -> Unit) {
+fun TransactionsScreen(onNavigateBack: () -> Unit, onNavigateToAddTransaction: () -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Income", "Expense", "Pending")
@@ -41,7 +41,7 @@ fun TransactionsScreen(onNavigateBack: () -> Unit) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Add Transaction */ }) {
+                    IconButton(onClick = onNavigateToAddTransaction) {
                         Icon(Icons.Filled.Add, contentDescription = "Add")
                     }
                 }
