@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "ug.ac.ndejje.myapp-mergeDebugResources-45:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\wassw\\.gradle\\caches\\9.0.0\\transforms\\6550cde173c8f12970b49142e50b63de\\transformed\\core-1.12.0\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
+                    }
+                }
+            ]
+        }
+    ]
+}

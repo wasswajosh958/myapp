@@ -4,11 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,7 +42,8 @@ fun AppNavigation() {
     NavHost(navController = navController, startDestination = "login") {
         composable("login") {
             LoginScreen(
-                onNavigateToRegister = { navController.navigate("register") }
+                onNavigateToRegister = { navController.navigate("register") },
+                onLoginSuccess = { navController.navigate("home") }
             )
         }
         composable("register") {
@@ -44,17 +51,29 @@ fun AppNavigation() {
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+        composable("home") {
+            HomeScreen(
+                onLogout = { 
+                    navController.navigate("login") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun LoginScreen(onNavigateToRegister: () -> Unit) {
+fun LoginScreen(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -72,12 +91,24 @@ fun LoginScreen(onNavigateToRegister: () -> Unit) {
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                val description = if (passwordVisible) "Hide password" else "Show password"
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { /* Handle Login */ },
+            onClick = { 
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    onLoginSuccess()
+                }
+            },
+            enabled = email.isNotEmpty() && password.isNotEmpty(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Login")
@@ -90,15 +121,54 @@ fun LoginScreen(onNavigateToRegister: () -> Unit) {
 }
 
 @Composable
+fun HomeScreen(onLogout: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Welcome to the App!", style = MaterialTheme.typography.headlineLarge)
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(text = "You have successfully logged in.")
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(onClick = onLogout) {
+            Text("Logout")
+        }
+    }
+}
+
+@Composable
 fun RegisterScreen(onNavigateBack: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf<String?>(null) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var registrationSuccess by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+
+    if (registrationSuccess) {
+        AlertDialog(
+            onDismissRequest = { registrationSuccess = false },
+            confirmButton = {
+                TextButton(onClick = { 
+                    registrationSuccess = false
+                    onNavigateBack() 
+                }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Registration Successful") },
+            text = { Text("Your account for $email has been created successfully!") }
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -119,7 +189,14 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
                 passwordError = if (it.length < 8) "Password must be at least 8 characters" else null
             },
             label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                val description = if (passwordVisible) "Hide password" else "Show password"
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, contentDescription = description)
+                }
+            },
             isError = passwordError != null,
             supportingText = {
                 if (passwordError != null) {
@@ -135,7 +212,7 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
             label = { Text("Confirm Password") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             isError = confirmPassword.isNotEmpty() && confirmPassword != password,
             supportingText = {
                 if (confirmPassword.isNotEmpty() && confirmPassword != password) {
@@ -148,7 +225,7 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
         Button(
             onClick = { 
                 if (password.length >= 8 && password == confirmPassword) {
-                    /* Handle Registration */ 
+                    registrationSuccess = true
                 }
             },
             enabled = password.length >= 8 && password == confirmPassword && email.isNotEmpty(),
