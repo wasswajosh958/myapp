@@ -1,7 +1,7 @@
 package ug.ac.ndejje.myapp
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -15,15 +15,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.*
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val context = LocalContext.current
             val settingsDataStore = remember { SettingsDataStore(context) }
-            val themeMode by settingsDataStore.themeModeFlow.collectAsState(ThemeMode.SYSTEM)
-            val accentColor by settingsDataStore.accentColorFlow.collectAsState(AccentColor.GREEN)
+            val themeMode by settingsDataStore.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
+            val accentColor by settingsDataStore.accentColorFlow.collectAsState(initial = AccentColor.GREEN)
 
             FinTrackTheme(themeMode = themeMode, accentColor = accentColor) {
                 Surface(
@@ -42,7 +44,7 @@ fun AppNavigation(settingsDataStore: SettingsDataStore) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val authManager = remember { AuthManager(context) }
-    val currency by settingsDataStore.currencyFlow.collectAsState("Shs")
+    val currency by settingsDataStore.currencyFlow.collectAsState(initial = "Shs")
 
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") {
@@ -106,8 +108,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore) {
             )
         }
         composable("appearance") {
-            val themeMode by settingsDataStore.themeModeFlow.collectAsState(ThemeMode.SYSTEM)
-            val accentColor by settingsDataStore.accentColorFlow.collectAsState(AccentColor.GREEN)
+            val themeMode by settingsDataStore.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
+            val accentColor by settingsDataStore.accentColorFlow.collectAsState(initial = AccentColor.GREEN)
             val scope = rememberCoroutineScope()
 
             AppearanceScreen(
