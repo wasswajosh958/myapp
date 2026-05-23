@@ -34,6 +34,7 @@ fun HomeScreen(
     onNavigateToAccounts: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
     onCurrencyChange: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -133,7 +134,7 @@ fun HomeScreen(
                             }
                         }
                     }
-                    IconButton(onClick = { /* Handle Notifications */ }) {
+                    IconButton(onClick = onNavigateToNotifications) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
                     }
                     IconButton(onClick = onNavigateToProfile) {

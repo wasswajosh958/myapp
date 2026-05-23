@@ -90,7 +90,14 @@ fun AppNavigation(
                 onNavigateToAccounts = { navController.navigate("accounts") },
                 onNavigateToProfile = { navController.navigate("profile") },
                 onNavigateToSettings = { navController.navigate("settings") },
+                onNavigateToNotifications = { navController.navigate("notifications") },
                 onCurrencyChange = { selectedCurrency = it }
+            )
+        }
+        composable("notifications") {
+            NotificationScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSettings = { navController.navigate("settings") }
             )
         }
         composable("settings") {

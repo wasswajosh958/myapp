@@ -43,6 +43,12 @@ An Android application built with Jetpack Compose featuring a complete authentic
     - Security settings for password management.
     - Profile photo upload and management.
     - Centralized management for linked financial accounts.
+- **Notification Screen**:
+    - Real-time alerts for transactions, budget warnings, and savings goals.
+    - Smart AI financial insights and personalized advice.
+    - Bill and payment reminders with priority levels.
+    - Security notifications and login alerts.
+    - Easy management with "Mark all as read" and snooze options.
 - **Navigation**: Seamless transition between Home, Transactions, Reports, Budgets, and Profile via a modern Bottom Bar.
 - **UI/UX**: 
     - Fully scrollable screens with keyboard awareness (`imePadding`).
