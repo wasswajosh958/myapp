@@ -87,6 +87,15 @@ data class AnalyticsEvent(
     val timestamp: Long = System.currentTimeMillis()
 )
 
+@Entity(tableName = "user_profile")
+data class UserProfile(
+    @PrimaryKey val id: Int = 1, // We only have one local user
+    val name: String,
+    val email: String,
+    val currency: String = "Shs",
+    val photoUri: String? = null
+)
+
 data class ChatMessage(
     val text: String,
     val isUser: Boolean
