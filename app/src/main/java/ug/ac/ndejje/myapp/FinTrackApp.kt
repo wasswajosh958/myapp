@@ -5,10 +5,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class FinTrackApp : Application() {
+    lateinit var container: AppContainer
 
     override fun onCreate() {
         super.onCreate()
         
+        container = AppContainer(this)
         val database = AppDatabase.getInstance(this)
         
         // Setup Custom Crash Handler
