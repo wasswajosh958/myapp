@@ -17,7 +17,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.fragment.app.FragmentActivity
+
+fun Context.findActivity(): FragmentActivity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is FragmentActivity) return context
+        context = context.baseContext
+    }
+    return null
+}
 
 @Composable
 fun LoginScreen(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
@@ -28,13 +39,17 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
     var passwordVisible by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
+    val activity = remember(context) { context.findActivity() }
     val authManager = remember { AuthManager(context) }
-    val biometricHelper = remember { 
-        BiometricPromptHelper(
-            activity = context as FragmentActivity,
-            onSuccess = onLoginSuccess,
-            onFailure = { /* Handle failure */ }
-        )
+    
+    val biometricHelper = remember(activity) { 
+        activity?.let {
+            BiometricPromptHelper(
+                activity = it,
+                onSuccess = onLoginSuccess,
+                onFailure = { /* Handle failure */ }
+            )
+        }
     }
 
     Column(
@@ -93,7 +108,7 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
             if (authManager.isBiometricAvailable()) {
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedButton(
-                    onClick = { biometricHelper.authenticate() },
+                    onClick = { biometricHelper?.authenticate() },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Filled.Fingerprint, null)
