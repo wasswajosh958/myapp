@@ -28,6 +28,14 @@ class AuthManager(private val context: Context) {
         return savedPin != null && savedPin == pin
     }
 
+    fun changePin(oldPin: String, newPin: String): Boolean {
+        if (verifyPin(oldPin)) {
+            setPin(newPin)
+            return true
+        }
+        return false
+    }
+
     fun setLoggedIn(isLoggedIn: Boolean) {
         prefs.edit().putBoolean("is_logged_in", isLoggedIn).apply()
     }
