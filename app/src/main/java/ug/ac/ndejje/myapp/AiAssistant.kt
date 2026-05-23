@@ -1,41 +1,24 @@
 package ug.ac.ndejje.myapp
 
 import android.content.Context
-import android.speech.tts.TextToSpeech
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.*
 
 /**
  * A Hybrid AI Assistant that handles both on-device financial queries 
  * and cloud-based general knowledge queries.
  */
-class AiAssistant(private val context: Context) {
+class AiAssistant(context: Context) {
     private val brain = AIBrain(context)
-    private var tts: TextToSpeech? = null
-    
-    init {
-        tts = TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                tts?.language = Locale.US
-            }
-        }
-    }
+    private val ttsHelper = TextToSpeechHelper(context)
 
-    suspend fun getResponse(query: String, contextData: String): String {
+    suspend fun getResponse(query: String): String {
         return brain.processQuery(query)
     }
 
     fun speak(text: String) {
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        ttsHelper.speak(text)
     }
 
     fun onDestroy() {
-        tts?.stop()
-        tts?.shutdown()
+        ttsHelper.shutdown()
     }
-}
-
-enum class QueryIntent {
-    FINANCIAL, GENERAL
 }
