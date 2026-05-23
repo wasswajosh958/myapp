@@ -24,12 +24,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            var themeMode by remember { mutableStateOf(ThemeMode.SYSTEM) }
+            var accentColor by remember { mutableStateOf(AccentColor.GREEN) }
+            
+            FinTrackTheme(themeMode = themeMode, accentColor = accentColor) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    AppNavigation(
+                        currentTheme = themeMode,
+                        currentAccent = accentColor,
+                        onThemeChange = { themeMode = it },
+                        onAccentChange = { accentColor = it }
+                    )
                 }
             }
         }
@@ -37,11 +45,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    currentTheme: ThemeMode,
+    currentAccent: AccentColor,
+    onThemeChange: (ThemeMode) -> Unit,
+    onAccentChange: (AccentColor) -> Unit
+) {
     val navController = rememberNavController()
     var selectedCurrency by remember { mutableStateOf("Shs") }
+    var showOnboarding by remember { mutableStateOf(true) }
 
-    NavHost(navController = navController, startDestination = "login") {
+    NavHost(navController = navController, startDestination = if (showOnboarding) "onboarding" else "login") {
+        composable("onboarding") {
+            OnboardingScreen(onFinish = {
+                showOnboarding = false
+                navController.navigate("login") {
+                    popUpTo("onboarding") { inclusive = true }
+                }
+            })
+        }
         composable("login") {
             LoginScreen(
                 onNavigateToRegister = { navController.navigate("register") },
@@ -67,7 +89,24 @@ fun AppNavigation() {
                 onNavigateToBudgets = { navController.navigate("budgets") },
                 onNavigateToAccounts = { navController.navigate("accounts") },
                 onNavigateToProfile = { navController.navigate("profile") },
+                onNavigateToSettings = { navController.navigate("settings") },
                 onCurrencyChange = { selectedCurrency = it }
+            )
+        }
+        composable("settings") {
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToProfile = { navController.navigate("profile") },
+                onNavigateToAppearance = { navController.navigate("appearance") }
+            )
+        }
+        composable("appearance") {
+            AppearanceScreen(
+                currentTheme = currentTheme,
+                currentAccent = currentAccent,
+                onThemeChange = onThemeChange,
+                onAccentChange = onAccentChange,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable("reports") {

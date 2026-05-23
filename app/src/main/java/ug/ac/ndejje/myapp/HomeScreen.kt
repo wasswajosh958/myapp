@@ -33,6 +33,7 @@ fun HomeScreen(
     onNavigateToBudgets: () -> Unit,
     onNavigateToAccounts: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     onCurrencyChange: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -137,6 +138,9 @@ fun HomeScreen(
                     }
                     IconButton(onClick = onNavigateToProfile) {
                         Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
+                    }
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
                     }
                     IconButton(onClick = onLogout) {
                         Icon(Icons.Filled.Logout, contentDescription = "Logout")
