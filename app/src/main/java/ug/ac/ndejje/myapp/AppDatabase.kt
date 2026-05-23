@@ -56,6 +56,15 @@ interface CrashLogDao {
     suspend fun insert(log: CrashLog)
 }
 
+@Dao
+interface UserProfileDao {
+    @Query("SELECT * FROM user_profile WHERE id = 1 LIMIT 1")
+    suspend fun getUser(): UserProfile?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveUser(user: UserProfile)
+}
+
 @Database(
     entities = [
         Transaction::class, 
@@ -65,9 +74,10 @@ interface CrashLogDao {
         RecurringTransaction::class, 
         AIConversation::class,
         CrashLog::class,
-        AnalyticsEvent::class
+        AnalyticsEvent::class,
+        UserProfile::class
     ],
-    version = 1
+    version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
@@ -75,6 +85,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
     abstract fun budgetDao(): BudgetDao
     abstract fun crashLogDao(): CrashLogDao
+    abstract fun userProfileDao(): UserProfileDao
 
     companion object {
         private var INSTANCE: AppDatabase? = null
@@ -92,6 +103,7 @@ abstract class AppDatabase : RoomDatabase() {
                         "fintrack.db"
                     )
                     .openHelperFactory(factory)
+                    .fallbackToDestructiveMigration()
                     .build()
                 }
             }
