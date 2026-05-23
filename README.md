@@ -23,7 +23,17 @@ An Android application built with Jetpack Compose featuring a complete authentic
     - AI-powered "Quick-Add" suggestions based on spending habits.
     - Voice-to-form integration ("Add $45 for groceries at Safeway yesterday").
     - Attachment support for receipts.
-- **Navigation**: Seamless transition between Home, Transactions, Analytics, Goals, and Settings.
+- **Budget Management Screen**:
+    - Set monthly and category-specific budgets.
+    - Real-time progress tracking with visual alerts.
+    - Edit or delete budgets with a few taps.
+- **Reports & Insights Screen**:
+    - Visualize spending trends with interactive daily charts.
+    - Category breakdown via donut chart visualization.
+    - Comparison metrics (vs last month, income vs expenses).
+    - Top spending categories with over-budget indicators.
+    - AI Insights for personalized financial advice.
+- **Navigation**: Seamless transition between Home, Transactions, Analytics (Reports), Budgets, and Settings.
 - **UI/UX**: 
     - Fully scrollable screens with keyboard awareness (`imePadding`).
     - Custom App Icon and Material 3 design components.

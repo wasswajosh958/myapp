@@ -29,6 +29,8 @@ fun HomeScreen(
     onLogout: () -> Unit, 
     onNavigateToTransactions: () -> Unit,
     onNavigateToAddTransaction: () -> Unit,
+    onNavigateToReports: () -> Unit,
+    onNavigateToBudgets: () -> Unit,
     onCurrencyChange: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -39,8 +41,8 @@ fun HomeScreen(
     var userQuery by remember { mutableStateOf("") }
     
     var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Home", "Transactions", "Analytics", "Goals", "Settings")
-    val icons = listOf(Icons.Filled.Home, Icons.Filled.CreditCard, Icons.Filled.BarChart, Icons.Filled.TrackChanges, Icons.Filled.Settings)
+    val items = listOf("Home", "Transactions", "Analytics", "Budgets", "Settings")
+    val icons = listOf(Icons.Filled.Home, Icons.Filled.CreditCard, Icons.Filled.BarChart, Icons.Filled.AccountBalanceWallet, Icons.Filled.Settings)
 
     var showCurrencyDropdown by remember { mutableStateOf(false) }
     val currencies = listOf("Shs", "$", "€", "£")
@@ -149,8 +151,10 @@ fun HomeScreen(
                         selected = selectedItem == index,
                         onClick = { 
                             selectedItem = index
-                            if (item == "Transactions") {
-                                onNavigateToTransactions()
+                            when (item) {
+                                "Transactions" -> onNavigateToTransactions()
+                                "Analytics" -> onNavigateToReports()
+                                "Budgets" -> onNavigateToBudgets()
                             }
                         }
                     )
@@ -212,7 +216,10 @@ fun HomeScreen(
 
             // 6. Budget Alerts
             item {
-                AlertCard("You have spent 85% of your food budget.")
+                SectionHeader("Budgets", viewAll = true, onViewAll = onNavigateToBudgets)
+            }
+            item {
+                AlertCard("You have spent 85% of your food budget.", onClick = onNavigateToBudgets)
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -361,8 +368,9 @@ fun SavingsGoalItem(name: String, progress: Float, remaining: String) {
 }
 
 @Composable
-fun AlertCard(message: String) {
+fun AlertCard(message: String, onClick: () -> Unit = {}) {
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = Color.Yellow.copy(alpha = 0.1f)),
         border = BorderStroke(1.dp, Color.Yellow.copy(alpha = 0.5f))

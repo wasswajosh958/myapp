@@ -63,7 +63,21 @@ fun AppNavigation() {
                 },
                 onNavigateToTransactions = { navController.navigate("transactions") },
                 onNavigateToAddTransaction = { navController.navigate("add_transaction") },
+                onNavigateToReports = { navController.navigate("reports") },
+                onNavigateToBudgets = { navController.navigate("budgets") },
                 onCurrencyChange = { selectedCurrency = it }
+            )
+        }
+        composable("reports") {
+            ReportsScreen(
+                currency = selectedCurrency,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("budgets") {
+            BudgetManagementScreen(
+                currency = selectedCurrency,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable("transactions") {
@@ -148,15 +162,15 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
     var confirmPassword by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var passwordVisible by remember { mutableStateOf(false) }
-    var registrationSuccess by remember { mutableStateOf(false) }
+    val registrationSuccess = remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
-    if (registrationSuccess) {
+    if (registrationSuccess.value) {
         AlertDialog(
-            onDismissRequest = { registrationSuccess = false },
+            onDismissRequest = { registrationSuccess.value = false },
             confirmButton = {
                 TextButton(onClick = { 
-                    registrationSuccess = false
+                    registrationSuccess.value = false
                     onNavigateBack() 
                 }) {
                     Text("OK")
@@ -229,7 +243,7 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
         Button(
             onClick = { 
                 if (password.length >= 8 && password == confirmPassword) {
-                    registrationSuccess = true
+                    registrationSuccess.value = true
                 }
             },
             enabled = password.length >= 8 && password == confirmPassword && email.isNotEmpty(),
