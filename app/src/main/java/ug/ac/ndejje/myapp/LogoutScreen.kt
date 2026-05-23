@@ -7,6 +7,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -25,7 +27,7 @@ fun LogoutScreen(onConfirm: () -> Unit, onCancel: () -> Unit) {
             color = MaterialTheme.colorScheme.errorContainer
         ) {
             Icon(
-                imageVector = androidx.compose.material.icons.Icons.Filled.Logout,
+                imageVector = Icons.AutoMirrored.Filled.Logout,
                 contentDescription = null,
                 modifier = Modifier.padding(24.dp).fillMaxSize(),
                 tint = MaterialTheme.colorScheme.onErrorContainer
