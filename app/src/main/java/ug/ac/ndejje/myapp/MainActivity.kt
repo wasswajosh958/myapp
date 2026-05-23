@@ -65,6 +65,8 @@ fun AppNavigation() {
                 onNavigateToAddTransaction = { navController.navigate("add_transaction") },
                 onNavigateToReports = { navController.navigate("reports") },
                 onNavigateToBudgets = { navController.navigate("budgets") },
+                onNavigateToAccounts = { navController.navigate("accounts") },
+                onNavigateToProfile = { navController.navigate("profile") },
                 onCurrencyChange = { selectedCurrency = it }
             )
         }
@@ -78,6 +80,18 @@ fun AppNavigation() {
             BudgetManagementScreen(
                 currency = selectedCurrency,
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("accounts") {
+            AccountsScreen(
+                currency = selectedCurrency,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("profile") {
+            ProfileScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAccounts = { navController.navigate("accounts") }
             )
         }
         composable("transactions") {

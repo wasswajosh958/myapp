@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="26"
+        android:minSdkVersion="23"
         android:targetSdkVersion="34" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -34,6 +34,7 @@
         android:label="FinTrack"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@android:style/Theme.Material.Light" >
         <activity
             android:name="ug.ac.ndejje.myapp.MainActivity"

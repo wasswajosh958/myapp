@@ -33,7 +33,17 @@ An Android application built with Jetpack Compose featuring a complete authentic
     - Comparison metrics (vs last month, income vs expenses).
     - Top spending categories with over-budget indicators.
     - AI Insights for personalized financial advice.
-- **Navigation**: Seamless transition between Home, Transactions, Analytics (Reports), Budgets, and Settings.
+- **Accounts Screen**:
+    - Manage linked financial accounts (Checking, Savings, Credit Cards, Cash).
+    - Real-time Net Worth calculation (Assets vs Liabilities).
+    - Visual indicators for payment due dates and APY details.
+    - Quick actions like "Pay Now", "Transfer", and "View Transactions".
+- **Profile Screen**:
+    - Manage personal account information (Name, Email).
+    - Security settings for password management.
+    - Profile photo upload and management.
+    - Centralized management for linked financial accounts.
+- **Navigation**: Seamless transition between Home, Transactions, Reports, Budgets, and Profile via a modern Bottom Bar.
 - **UI/UX**: 
     - Fully scrollable screens with keyboard awareness (`imePadding`).
     - Custom App Icon and Material 3 design components.

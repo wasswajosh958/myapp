@@ -31,6 +31,8 @@ fun HomeScreen(
     onNavigateToAddTransaction: () -> Unit,
     onNavigateToReports: () -> Unit,
     onNavigateToBudgets: () -> Unit,
+    onNavigateToAccounts: () -> Unit,
+    onNavigateToProfile: () -> Unit,
     onCurrencyChange: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -41,8 +43,8 @@ fun HomeScreen(
     var userQuery by remember { mutableStateOf("") }
     
     var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Home", "Transactions", "Analytics", "Budgets", "Settings")
-    val icons = listOf(Icons.Filled.Home, Icons.Filled.CreditCard, Icons.Filled.BarChart, Icons.Filled.AccountBalanceWallet, Icons.Filled.Settings)
+    val items = listOf("Home", "Transactions", "Analytics", "Budgets", "Profile")
+    val icons = listOf(Icons.Filled.Home, Icons.Filled.CreditCard, Icons.Filled.BarChart, Icons.Filled.AccountBalanceWallet, Icons.Filled.Person)
 
     var showCurrencyDropdown by remember { mutableStateOf(false) }
     val currencies = listOf("Shs", "$", "€", "£")
@@ -133,7 +135,7 @@ fun HomeScreen(
                     IconButton(onClick = { /* Handle Notifications */ }) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
                     }
-                    IconButton(onClick = { /* Handle Profile/Settings */ }) {
+                    IconButton(onClick = onNavigateToProfile) {
                         Icon(Icons.Filled.AccountCircle, contentDescription = "Profile")
                     }
                     IconButton(onClick = onLogout) {
@@ -155,6 +157,7 @@ fun HomeScreen(
                                 "Transactions" -> onNavigateToTransactions()
                                 "Analytics" -> onNavigateToReports()
                                 "Budgets" -> onNavigateToBudgets()
+                                "Profile" -> onNavigateToProfile()
                             }
                         }
                     )
@@ -178,7 +181,9 @@ fun HomeScreen(
 
             // 2. Financial Summary Cards
             item {
-                BalanceCard(balance = "$currency 2,450,000")
+                Surface(onClick = onNavigateToAccounts) {
+                    BalanceCard(balance = "$currency 2,450,000")
+                }
             }
 
             item {
