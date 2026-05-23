@@ -52,4 +52,13 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.mediapipe.genai)
     implementation(libs.play.services.mlkit.speech)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    annotationProcessor(libs.room.compiler)
+    implementation(libs.biometric)
+    implementation(libs.security.crypto)
+    implementation(libs.datastore.preferences)
+    implementation(libs.gson)
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.sqlcipher)
 }

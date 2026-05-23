@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,9 +79,18 @@ fun ReportsScreen(currency: String, onNavigateBack: () -> Unit) {
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f), RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Filled.ShowChart, null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.primary)
-                        Text("Daily Spending (Line Chart)", style = MaterialTheme.typography.labelLarge)
+                    Canvas(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                        // Drawing logic for simple line chart
+                        val points = listOf(0.2f, 0.4f, 0.3f, 0.7f, 0.5f, 0.8f, 0.6f)
+                        val widthStep = size.width / (points.size - 1)
+                        for (i in 0 until points.size - 1) {
+                            drawLine(
+                                color = Color.Red,
+                                start = androidx.compose.ui.geometry.Offset(i * widthStep, size.height * (1 - points[i])),
+                                end = androidx.compose.ui.geometry.Offset((i + 1) * widthStep, size.height * (1 - points[i + 1])),
+                                strokeWidth = 3.dp.toPx()
+                            )
+                        }
                     }
                 }
             }
@@ -102,7 +112,7 @@ fun ReportsScreen(currency: String, onNavigateBack: () -> Unit) {
                 }
             }
 
-            // 3. Category Breakdown (Pie/Donut Chart)
+            // 3. Category Breakdown
             ChartCard(title = "Category Breakdown") {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(

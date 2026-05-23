@@ -11,7 +11,7 @@ import java.util.*
  * and cloud-based general knowledge queries.
  */
 class AiAssistant(private val context: Context) {
-
+    private val brain = AIBrain(context)
     private var tts: TextToSpeech? = null
     
     init {
@@ -22,31 +22,8 @@ class AiAssistant(private val context: Context) {
         }
     }
 
-    private val financialKeywords = setOf(
-        "spent", "spend", "budget", "balance", "transaction", "income", "expense",
-        "paid", "cost", "price", "category", "save", "saving", "ugx"
-    )
-
-    fun classifyQuery(query: String): QueryIntent {
-        val lower = query.lowercase()
-        return if (financialKeywords.any { it in lower }) {
-            QueryIntent.FINANCIAL
-        } else {
-            QueryIntent.GENERAL
-        }
-    }
-
-    suspend fun getResponse(query: String, contextData: String): String = withContext(Dispatchers.IO) {
-        val intent = classifyQuery(query)
-        
-        if (intent == QueryIntent.FINANCIAL) {
-            // Placeholder for MediaPipe GenAI On-Device Inference
-            // In a real app, you'd call LlmInference here.
-            return@withContext "Based on your records: $contextData\nYou asked: \"$query\""
-        } else {
-            // Placeholder for Cloud Fallback (e.g., GPT-4o-mini or DeepSeek)
-            return@withContext "I'm answering your general question about \"$query\" using my cloud brain."
-        }
+    suspend fun getResponse(query: String, contextData: String): String {
+        return brain.processQuery(query)
     }
 
     fun speak(text: String) {
