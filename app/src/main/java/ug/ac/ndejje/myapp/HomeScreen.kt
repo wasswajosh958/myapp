@@ -89,7 +89,7 @@ fun HomeScreen(
                         userQuery = ""
                         chatMessages = chatMessages + ChatMessage(q, true)
                         scope.launch {
-                            val response = assistant.getResponse(q, "Balance: UGX 2.45M")
+                            val response = assistant.getResponse(q)
                             chatMessages = chatMessages + ChatMessage(response, false)
                             assistant.speak(response)
                         }
