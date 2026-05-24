@@ -16,6 +16,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,18 +51,19 @@ public final class AppDatabase_Impl extends AppDatabase {
     final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `category` TEXT NOT NULL, `amountValue` REAL NOT NULL, `date` TEXT NOT NULL, `time` TEXT NOT NULL, `isExpense` INTEGER NOT NULL, `isPending` INTEGER NOT NULL, `accountId` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `categories` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `icon` TEXT NOT NULL, `type` TEXT NOT NULL, `modeId` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `accounts` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `balance` REAL NOT NULL, `currency` TEXT NOT NULL, `lastFour` TEXT, `modeId` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `budgets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `category` TEXT NOT NULL, `limit` REAL NOT NULL, `spent` REAL NOT NULL, `modeId` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `recurring_transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `amount` REAL NOT NULL, `frequency` TEXT NOT NULL, `nextDueDate` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `ai_conversations` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `role` TEXT NOT NULL, `content` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `title` TEXT NOT NULL, `category` TEXT NOT NULL, `amountValue` REAL NOT NULL, `date` TEXT NOT NULL, `time` TEXT NOT NULL, `isExpense` INTEGER NOT NULL, `isPending` INTEGER NOT NULL, `accountId` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `categories` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `name` TEXT NOT NULL, `icon` TEXT NOT NULL, `type` TEXT NOT NULL, `modeId` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `accounts` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `balance` REAL NOT NULL, `currency` TEXT NOT NULL, `lastFour` TEXT, `modeId` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `budgets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `category` TEXT NOT NULL, `limit` REAL NOT NULL, `spent` REAL NOT NULL, `modeId` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `recurring_transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `name` TEXT NOT NULL, `amount` REAL NOT NULL, `frequency` TEXT NOT NULL, `nextDueDate` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `ai_conversations` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `role` TEXT NOT NULL, `content` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `crash_logs` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `exception` TEXT NOT NULL, `message` TEXT NOT NULL, `stackTrace` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `analytics_events` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `eventName` TEXT NOT NULL, `params` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `email` TEXT NOT NULL, `currency` TEXT NOT NULL, `photoUri` TEXT, `passwordHash` TEXT, PRIMARY KEY(`id`))");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `notifications` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` TEXT NOT NULL, `title` TEXT NOT NULL, `message` TEXT NOT NULL, `relatedId` INTEGER, `isRead` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `analytics_events` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `eventName` TEXT NOT NULL, `params` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT NOT NULL, `currency` TEXT NOT NULL, `photoUri` TEXT, `passwordHash` TEXT, `pinHash` TEXT)");
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_user_profile_username` ON `user_profile` (`username`)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `notifications` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `type` TEXT NOT NULL, `title` TEXT NOT NULL, `message` TEXT NOT NULL, `relatedId` INTEGER, `isRead` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9574fd786b599e72870c6a40080fb716')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd5fc44bd1b291ad76451faf426770507')");
       }
 
       @Override
@@ -119,8 +121,9 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsTransactions = new HashMap<String, TableInfo.Column>(10);
+        final HashMap<String, TableInfo.Column> _columnsTransactions = new HashMap<String, TableInfo.Column>(11);
         _columnsTransactions.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsTransactions.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransactions.put("title", new TableInfo.Column("title", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransactions.put("category", new TableInfo.Column("category", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsTransactions.put("amountValue", new TableInfo.Column("amountValue", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -139,8 +142,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoTransactions + "\n"
                   + " Found:\n" + _existingTransactions);
         }
-        final HashMap<String, TableInfo.Column> _columnsCategories = new HashMap<String, TableInfo.Column>(5);
+        final HashMap<String, TableInfo.Column> _columnsCategories = new HashMap<String, TableInfo.Column>(6);
         _columnsCategories.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsCategories.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCategories.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCategories.put("icon", new TableInfo.Column("icon", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsCategories.put("type", new TableInfo.Column("type", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -154,8 +158,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoCategories + "\n"
                   + " Found:\n" + _existingCategories);
         }
-        final HashMap<String, TableInfo.Column> _columnsAccounts = new HashMap<String, TableInfo.Column>(7);
+        final HashMap<String, TableInfo.Column> _columnsAccounts = new HashMap<String, TableInfo.Column>(8);
         _columnsAccounts.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAccounts.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAccounts.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAccounts.put("type", new TableInfo.Column("type", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAccounts.put("balance", new TableInfo.Column("balance", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -171,8 +176,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoAccounts + "\n"
                   + " Found:\n" + _existingAccounts);
         }
-        final HashMap<String, TableInfo.Column> _columnsBudgets = new HashMap<String, TableInfo.Column>(5);
+        final HashMap<String, TableInfo.Column> _columnsBudgets = new HashMap<String, TableInfo.Column>(6);
         _columnsBudgets.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsBudgets.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBudgets.put("category", new TableInfo.Column("category", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBudgets.put("limit", new TableInfo.Column("limit", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsBudgets.put("spent", new TableInfo.Column("spent", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -186,8 +192,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoBudgets + "\n"
                   + " Found:\n" + _existingBudgets);
         }
-        final HashMap<String, TableInfo.Column> _columnsRecurringTransactions = new HashMap<String, TableInfo.Column>(6);
+        final HashMap<String, TableInfo.Column> _columnsRecurringTransactions = new HashMap<String, TableInfo.Column>(7);
         _columnsRecurringTransactions.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsRecurringTransactions.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRecurringTransactions.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRecurringTransactions.put("amount", new TableInfo.Column("amount", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsRecurringTransactions.put("frequency", new TableInfo.Column("frequency", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -202,8 +209,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoRecurringTransactions + "\n"
                   + " Found:\n" + _existingRecurringTransactions);
         }
-        final HashMap<String, TableInfo.Column> _columnsAiConversations = new HashMap<String, TableInfo.Column>(5);
+        final HashMap<String, TableInfo.Column> _columnsAiConversations = new HashMap<String, TableInfo.Column>(6);
         _columnsAiConversations.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAiConversations.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAiConversations.put("role", new TableInfo.Column("role", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAiConversations.put("content", new TableInfo.Column("content", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAiConversations.put("timestamp", new TableInfo.Column("timestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -232,8 +240,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoCrashLogs + "\n"
                   + " Found:\n" + _existingCrashLogs);
         }
-        final HashMap<String, TableInfo.Column> _columnsAnalyticsEvents = new HashMap<String, TableInfo.Column>(4);
+        final HashMap<String, TableInfo.Column> _columnsAnalyticsEvents = new HashMap<String, TableInfo.Column>(5);
         _columnsAnalyticsEvents.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAnalyticsEvents.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAnalyticsEvents.put("eventName", new TableInfo.Column("eventName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAnalyticsEvents.put("params", new TableInfo.Column("params", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAnalyticsEvents.put("timestamp", new TableInfo.Column("timestamp", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -246,15 +255,18 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoAnalyticsEvents + "\n"
                   + " Found:\n" + _existingAnalyticsEvents);
         }
-        final HashMap<String, TableInfo.Column> _columnsUserProfile = new HashMap<String, TableInfo.Column>(6);
+        final HashMap<String, TableInfo.Column> _columnsUserProfile = new HashMap<String, TableInfo.Column>(8);
         _columnsUserProfile.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("username", new TableInfo.Column("username", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("email", new TableInfo.Column("email", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("currency", new TableInfo.Column("currency", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("photoUri", new TableInfo.Column("photoUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUserProfile.put("passwordHash", new TableInfo.Column("passwordHash", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUserProfile.put("pinHash", new TableInfo.Column("pinHash", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysUserProfile = new HashSet<TableInfo.ForeignKey>(0);
-        final HashSet<TableInfo.Index> _indicesUserProfile = new HashSet<TableInfo.Index>(0);
+        final HashSet<TableInfo.Index> _indicesUserProfile = new HashSet<TableInfo.Index>(1);
+        _indicesUserProfile.add(new TableInfo.Index("index_user_profile_username", true, Arrays.asList("username"), Arrays.asList("ASC")));
         final TableInfo _infoUserProfile = new TableInfo("user_profile", _columnsUserProfile, _foreignKeysUserProfile, _indicesUserProfile);
         final TableInfo _existingUserProfile = TableInfo.read(db, "user_profile");
         if (!_infoUserProfile.equals(_existingUserProfile)) {
@@ -262,8 +274,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoUserProfile + "\n"
                   + " Found:\n" + _existingUserProfile);
         }
-        final HashMap<String, TableInfo.Column> _columnsNotifications = new HashMap<String, TableInfo.Column>(8);
+        final HashMap<String, TableInfo.Column> _columnsNotifications = new HashMap<String, TableInfo.Column>(9);
         _columnsNotifications.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsNotifications.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsNotifications.put("type", new TableInfo.Column("type", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsNotifications.put("title", new TableInfo.Column("title", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsNotifications.put("message", new TableInfo.Column("message", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -282,7 +295,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "9574fd786b599e72870c6a40080fb716", "e732dd5b3394a0909da454862a93d90a");
+    }, "d5fc44bd1b291ad76451faf426770507", "f4ebda12880e4dbf029925945e49400a");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

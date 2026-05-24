@@ -29,9 +29,10 @@ fun NotificationScreen(
     onNavigateBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToDetail: (Long) -> Unit,
-    notificationRepository: NotificationRepository
+    notificationRepository: NotificationRepository,
+    userId: Int
 ) {
-    val notifications by notificationRepository.activeNotifications.collectAsState(initial = emptyList())
+    val notifications by notificationRepository.activeNotifications(userId).collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
 
     Scaffold(

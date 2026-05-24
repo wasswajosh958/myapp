@@ -43,42 +43,44 @@ public final class BudgetDao_Impl implements BudgetDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `budgets` (`id`,`category`,`limit`,`spent`,`modeId`) VALUES (nullif(?, 0),?,?,?,?)";
+        return "INSERT OR ABORT INTO `budgets` (`id`,`userId`,`category`,`limit`,`spent`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final BudgetEntity entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getCategory());
-        statement.bindDouble(3, entity.getLimit());
-        statement.bindDouble(4, entity.getSpent());
-        statement.bindLong(5, entity.getModeId());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getCategory());
+        statement.bindDouble(4, entity.getLimit());
+        statement.bindDouble(5, entity.getSpent());
+        statement.bindLong(6, entity.getModeId());
       }
     };
     this.__updateAdapterOfBudgetEntity = new EntityDeletionOrUpdateAdapter<BudgetEntity>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `budgets` SET `id` = ?,`category` = ?,`limit` = ?,`spent` = ?,`modeId` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `budgets` SET `id` = ?,`userId` = ?,`category` = ?,`limit` = ?,`spent` = ?,`modeId` = ? WHERE `id` = ?";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final BudgetEntity entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getCategory());
-        statement.bindDouble(3, entity.getLimit());
-        statement.bindDouble(4, entity.getSpent());
-        statement.bindLong(5, entity.getModeId());
-        statement.bindLong(6, entity.getId());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getCategory());
+        statement.bindDouble(4, entity.getLimit());
+        statement.bindDouble(5, entity.getSpent());
+        statement.bindLong(6, entity.getModeId());
+        statement.bindLong(7, entity.getId());
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM budgets";
+        final String _query = "DELETE FROM budgets WHERE userId = ?";
         return _query;
       }
     };
@@ -121,12 +123,14 @@ public final class BudgetDao_Impl implements BudgetDao {
   }
 
   @Override
-  public Object deleteAll(final Continuation<? super Unit> $completion) {
+  public Object deleteAll(final int userId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAll.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, userId);
         try {
           __db.beginTransaction();
           try {
@@ -144,9 +148,11 @@ public final class BudgetDao_Impl implements BudgetDao {
   }
 
   @Override
-  public Flow<List<BudgetEntity>> getAllBudgets() {
-    final String _sql = "SELECT * FROM budgets";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+  public Flow<List<BudgetEntity>> getAllBudgets(final int userId) {
+    final String _sql = "SELECT * FROM budgets WHERE userId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, userId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"budgets"}, new Callable<List<BudgetEntity>>() {
       @Override
       @NonNull
@@ -154,6 +160,7 @@ public final class BudgetDao_Impl implements BudgetDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
           final int _cursorIndexOfCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "category");
           final int _cursorIndexOfLimit = CursorUtil.getColumnIndexOrThrow(_cursor, "limit");
           final int _cursorIndexOfSpent = CursorUtil.getColumnIndexOrThrow(_cursor, "spent");
@@ -163,6 +170,8 @@ public final class BudgetDao_Impl implements BudgetDao {
             final BudgetEntity _item;
             final int _tmpId;
             _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
             final String _tmpCategory;
             _tmpCategory = _cursor.getString(_cursorIndexOfCategory);
             final double _tmpLimit;
@@ -171,7 +180,7 @@ public final class BudgetDao_Impl implements BudgetDao {
             _tmpSpent = _cursor.getDouble(_cursorIndexOfSpent);
             final int _tmpModeId;
             _tmpModeId = _cursor.getInt(_cursorIndexOfModeId);
-            _item = new BudgetEntity(_tmpId,_tmpCategory,_tmpLimit,_tmpSpent,_tmpModeId);
+            _item = new BudgetEntity(_tmpId,_tmpUserId,_tmpCategory,_tmpLimit,_tmpSpent,_tmpModeId);
             _result.add(_item);
           }
           return _result;

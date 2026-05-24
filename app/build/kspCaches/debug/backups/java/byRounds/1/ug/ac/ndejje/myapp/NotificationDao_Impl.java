@@ -49,26 +49,27 @@ public final class NotificationDao_Impl implements NotificationDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `notifications` (`id`,`type`,`title`,`message`,`relatedId`,`isRead`,`isDeleted`,`createdAt`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `notifications` (`id`,`userId`,`type`,`title`,`message`,`relatedId`,`isRead`,`isDeleted`,`createdAt`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final NotificationEntity entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getType());
-        statement.bindString(3, entity.getTitle());
-        statement.bindString(4, entity.getMessage());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getType());
+        statement.bindString(4, entity.getTitle());
+        statement.bindString(5, entity.getMessage());
         if (entity.getRelatedId() == null) {
-          statement.bindNull(5);
+          statement.bindNull(6);
         } else {
-          statement.bindLong(5, entity.getRelatedId());
+          statement.bindLong(6, entity.getRelatedId());
         }
         final int _tmp = entity.isRead() ? 1 : 0;
-        statement.bindLong(6, _tmp);
+        statement.bindLong(7, _tmp);
         final int _tmp_1 = entity.isDeleted() ? 1 : 0;
-        statement.bindLong(7, _tmp_1);
-        statement.bindLong(8, entity.getCreatedAt());
+        statement.bindLong(8, _tmp_1);
+        statement.bindLong(9, entity.getCreatedAt());
       }
     };
     this.__preparedStmtOfMarkAsRead = new SharedSQLiteStatement(__db) {
@@ -99,7 +100,7 @@ public final class NotificationDao_Impl implements NotificationDao {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM notifications";
+        final String _query = "DELETE FROM notifications WHERE userId = ?";
         return _query;
       }
     };
@@ -200,12 +201,14 @@ public final class NotificationDao_Impl implements NotificationDao {
   }
 
   @Override
-  public Object deleteAll(final Continuation<? super Unit> $completion) {
+  public Object deleteAll(final int userId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAll.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, userId);
         try {
           __db.beginTransaction();
           try {
@@ -223,9 +226,11 @@ public final class NotificationDao_Impl implements NotificationDao {
   }
 
   @Override
-  public Flow<List<NotificationEntity>> getAllActive() {
-    final String _sql = "SELECT * FROM notifications WHERE isDeleted = 0 ORDER BY createdAt DESC";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+  public Flow<List<NotificationEntity>> getAllActive(final int userId) {
+    final String _sql = "SELECT * FROM notifications WHERE userId = ? AND isDeleted = 0 ORDER BY createdAt DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, userId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"notifications"}, new Callable<List<NotificationEntity>>() {
       @Override
       @NonNull
@@ -233,6 +238,7 @@ public final class NotificationDao_Impl implements NotificationDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
           final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
           final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
           final int _cursorIndexOfMessage = CursorUtil.getColumnIndexOrThrow(_cursor, "message");
@@ -245,6 +251,8 @@ public final class NotificationDao_Impl implements NotificationDao {
             final NotificationEntity _item;
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
             final String _tmpType;
             _tmpType = _cursor.getString(_cursorIndexOfType);
             final String _tmpTitle;
@@ -267,7 +275,7 @@ public final class NotificationDao_Impl implements NotificationDao {
             _tmpIsDeleted = _tmp_1 != 0;
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _item = new NotificationEntity(_tmpId,_tmpType,_tmpTitle,_tmpMessage,_tmpRelatedId,_tmpIsRead,_tmpIsDeleted,_tmpCreatedAt);
+            _item = new NotificationEntity(_tmpId,_tmpUserId,_tmpType,_tmpTitle,_tmpMessage,_tmpRelatedId,_tmpIsRead,_tmpIsDeleted,_tmpCreatedAt);
             _result.add(_item);
           }
           return _result;
@@ -297,6 +305,7 @@ public final class NotificationDao_Impl implements NotificationDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
           final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
           final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
           final int _cursorIndexOfMessage = CursorUtil.getColumnIndexOrThrow(_cursor, "message");
@@ -308,6 +317,8 @@ public final class NotificationDao_Impl implements NotificationDao {
           if (_cursor.moveToFirst()) {
             final long _tmpId;
             _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
             final String _tmpType;
             _tmpType = _cursor.getString(_cursorIndexOfType);
             final String _tmpTitle;
@@ -330,7 +341,7 @@ public final class NotificationDao_Impl implements NotificationDao {
             _tmpIsDeleted = _tmp_1 != 0;
             final long _tmpCreatedAt;
             _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
-            _result = new NotificationEntity(_tmpId,_tmpType,_tmpTitle,_tmpMessage,_tmpRelatedId,_tmpIsRead,_tmpIsDeleted,_tmpCreatedAt);
+            _result = new NotificationEntity(_tmpId,_tmpUserId,_tmpType,_tmpTitle,_tmpMessage,_tmpRelatedId,_tmpIsRead,_tmpIsDeleted,_tmpCreatedAt);
           } else {
             _result = null;
           }

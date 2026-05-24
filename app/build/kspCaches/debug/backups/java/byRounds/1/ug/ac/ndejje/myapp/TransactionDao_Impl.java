@@ -43,24 +43,25 @@ public final class TransactionDao_Impl implements TransactionDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `transactions` (`id`,`title`,`category`,`amountValue`,`date`,`time`,`isExpense`,`isPending`,`accountId`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `transactions` (`id`,`userId`,`title`,`category`,`amountValue`,`date`,`time`,`isExpense`,`isPending`,`accountId`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final Transaction entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getTitle());
-        statement.bindString(3, entity.getCategory());
-        statement.bindDouble(4, entity.getAmountValue());
-        statement.bindString(5, entity.getDate());
-        statement.bindString(6, entity.getTime());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getTitle());
+        statement.bindString(4, entity.getCategory());
+        statement.bindDouble(5, entity.getAmountValue());
+        statement.bindString(6, entity.getDate());
+        statement.bindString(7, entity.getTime());
         final int _tmp = entity.isExpense() ? 1 : 0;
-        statement.bindLong(7, _tmp);
+        statement.bindLong(8, _tmp);
         final int _tmp_1 = entity.isPending() ? 1 : 0;
-        statement.bindLong(8, _tmp_1);
-        statement.bindLong(9, entity.getAccountId());
-        statement.bindLong(10, entity.getModeId());
+        statement.bindLong(9, _tmp_1);
+        statement.bindLong(10, entity.getAccountId());
+        statement.bindLong(11, entity.getModeId());
       }
     };
     this.__deletionAdapterOfTransaction = new EntityDeletionOrUpdateAdapter<Transaction>(__db) {
@@ -80,7 +81,7 @@ public final class TransactionDao_Impl implements TransactionDao {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM transactions";
+        final String _query = "DELETE FROM transactions WHERE userId = ?";
         return _query;
       }
     };
@@ -125,12 +126,14 @@ public final class TransactionDao_Impl implements TransactionDao {
   }
 
   @Override
-  public Object deleteAll(final Continuation<? super Unit> $completion) {
+  public Object deleteAll(final int userId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAll.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, userId);
         try {
           __db.beginTransaction();
           try {
@@ -148,9 +151,11 @@ public final class TransactionDao_Impl implements TransactionDao {
   }
 
   @Override
-  public Flow<List<Transaction>> getAllTransactions() {
-    final String _sql = "SELECT * FROM transactions ORDER BY date DESC, time DESC";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+  public Flow<List<Transaction>> getAllTransactions(final int userId) {
+    final String _sql = "SELECT * FROM transactions WHERE userId = ? ORDER BY date DESC, time DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, userId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"transactions"}, new Callable<List<Transaction>>() {
       @Override
       @NonNull
@@ -158,6 +163,7 @@ public final class TransactionDao_Impl implements TransactionDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
           final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
           final int _cursorIndexOfCategory = CursorUtil.getColumnIndexOrThrow(_cursor, "category");
           final int _cursorIndexOfAmountValue = CursorUtil.getColumnIndexOrThrow(_cursor, "amountValue");
@@ -172,6 +178,8 @@ public final class TransactionDao_Impl implements TransactionDao {
             final Transaction _item;
             final int _tmpId;
             _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
             final String _tmpTitle;
             _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
             final String _tmpCategory;
@@ -194,7 +202,7 @@ public final class TransactionDao_Impl implements TransactionDao {
             _tmpAccountId = _cursor.getInt(_cursorIndexOfAccountId);
             final int _tmpModeId;
             _tmpModeId = _cursor.getInt(_cursorIndexOfModeId);
-            _item = new Transaction(_tmpId,_tmpTitle,_tmpCategory,_tmpAmountValue,_tmpDate,_tmpTime,_tmpIsExpense,_tmpIsPending,_tmpAccountId,_tmpModeId);
+            _item = new Transaction(_tmpId,_tmpUserId,_tmpTitle,_tmpCategory,_tmpAmountValue,_tmpDate,_tmpTime,_tmpIsExpense,_tmpIsPending,_tmpAccountId,_tmpModeId);
             _result.add(_item);
           }
           return _result;

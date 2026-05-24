@@ -37,13 +37,16 @@ fun HomeScreen(
     onNavigateToNotifications: () -> Unit,
     onCurrencyChange: (String) -> Unit,
     userProfileRepository: UserProfileRepository,
-    database: AppDatabase
+    database: AppDatabase,
+    authManager: AuthManager
 ) {
     val context = LocalContext.current
-    val assistant = remember { AiAssistant(context, database) }
+    val currentUserId = authManager.getCurrentUserId()
+    val username = authManager.getCurrentUsername()
+    val assistant = remember { AiAssistant(context, database, currentUserId) }
     val scope = rememberCoroutineScope()
-    val userProfile by userProfileRepository.userProfile.collectAsState(initial = null)
-    val userName = userProfile?.name ?: "User"
+    val userProfile by userProfileRepository.getUserProfile(currentUserId).collectAsState(initial = null)
+    val displayName = userProfile?.username ?: username
 
     var showAiChat by remember { mutableStateOf(false) }
     var chatMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
@@ -113,7 +116,7 @@ fun HomeScreen(
                 title = {
                     Column {
                         Text("FinTrack", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text("Welcome back, $userName", fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                        Text("Welcome back, $displayName", fontSize = 14.sp, fontWeight = FontWeight.Normal)
                     }
                 },
                 actions = {
@@ -217,7 +220,7 @@ fun HomeScreen(
             item {
                 SectionHeader("Recent Transactions", viewAll = true, onViewAll = onNavigateToTransactions)
             }
-            items(getMockTransactions()) { transaction ->
+            items(getMockTransactions(currentUserId)) { transaction ->
                 TransactionItem(transaction, currency)
             }
 
@@ -398,9 +401,9 @@ fun AlertCard(message: String, onClick: () -> Unit = {}) {
     }
 }
 
-fun getMockTransactions() = listOf(
-    Transaction(1, "Airtime", "Utilities", 10000.0, "May 22", "2:30 PM", true),
-    Transaction(2, "Salary", "Income", 2000000.0, "May 21", "9:00 AM", false),
-    Transaction(3, "Lunch", "Food", 15000.0, "May 20", "1:30 PM", true),
-    Transaction(4, "Fuel", "Transport", 50000.0, "May 19", "8:15 AM", true)
+fun getMockTransactions(userId: Int) = listOf(
+    Transaction(1, userId, "Airtime", "Utilities", 10000.0, "May 22", "2:30 PM", true),
+    Transaction(2, userId, "Salary", "Income", 2000000.0, "May 21", "9:00 AM", false),
+    Transaction(3, userId, "Lunch", "Food", 15000.0, "May 20", "1:30 PM", true),
+    Transaction(4, userId, "Fuel", "Transport", 50000.0, "May 19", "8:15 AM", true)
 )

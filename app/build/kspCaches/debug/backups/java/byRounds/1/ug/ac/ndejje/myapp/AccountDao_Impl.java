@@ -45,23 +45,24 @@ public final class AccountDao_Impl implements AccountDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `accounts` (`id`,`name`,`type`,`balance`,`currency`,`lastFour`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `accounts` (`id`,`userId`,`name`,`type`,`balance`,`currency`,`lastFour`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final AccountEntity entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getName());
-        statement.bindString(3, entity.getType());
-        statement.bindDouble(4, entity.getBalance());
-        statement.bindString(5, entity.getCurrency());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getName());
+        statement.bindString(4, entity.getType());
+        statement.bindDouble(5, entity.getBalance());
+        statement.bindString(6, entity.getCurrency());
         if (entity.getLastFour() == null) {
-          statement.bindNull(6);
+          statement.bindNull(7);
         } else {
-          statement.bindString(6, entity.getLastFour());
+          statement.bindString(7, entity.getLastFour());
         }
-        statement.bindLong(7, entity.getModeId());
+        statement.bindLong(8, entity.getModeId());
       }
     };
     this.__deletionAdapterOfAccountEntity = new EntityDeletionOrUpdateAdapter<AccountEntity>(__db) {
@@ -81,31 +82,32 @@ public final class AccountDao_Impl implements AccountDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `accounts` SET `id` = ?,`name` = ?,`type` = ?,`balance` = ?,`currency` = ?,`lastFour` = ?,`modeId` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `accounts` SET `id` = ?,`userId` = ?,`name` = ?,`type` = ?,`balance` = ?,`currency` = ?,`lastFour` = ?,`modeId` = ? WHERE `id` = ?";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final AccountEntity entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getName());
-        statement.bindString(3, entity.getType());
-        statement.bindDouble(4, entity.getBalance());
-        statement.bindString(5, entity.getCurrency());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getName());
+        statement.bindString(4, entity.getType());
+        statement.bindDouble(5, entity.getBalance());
+        statement.bindString(6, entity.getCurrency());
         if (entity.getLastFour() == null) {
-          statement.bindNull(6);
+          statement.bindNull(7);
         } else {
-          statement.bindString(6, entity.getLastFour());
+          statement.bindString(7, entity.getLastFour());
         }
-        statement.bindLong(7, entity.getModeId());
-        statement.bindLong(8, entity.getId());
+        statement.bindLong(8, entity.getModeId());
+        statement.bindLong(9, entity.getId());
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM accounts";
+        final String _query = "DELETE FROM accounts WHERE userId = ?";
         return _query;
       }
     };
@@ -166,12 +168,14 @@ public final class AccountDao_Impl implements AccountDao {
   }
 
   @Override
-  public Object deleteAll(final Continuation<? super Unit> $completion) {
+  public Object deleteAll(final int userId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAll.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, userId);
         try {
           __db.beginTransaction();
           try {
@@ -189,9 +193,11 @@ public final class AccountDao_Impl implements AccountDao {
   }
 
   @Override
-  public Flow<List<AccountEntity>> getAllAccounts() {
-    final String _sql = "SELECT * FROM accounts";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+  public Flow<List<AccountEntity>> getAllAccounts(final int userId) {
+    final String _sql = "SELECT * FROM accounts WHERE userId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, userId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"accounts"}, new Callable<List<AccountEntity>>() {
       @Override
       @NonNull
@@ -199,6 +205,7 @@ public final class AccountDao_Impl implements AccountDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
           final int _cursorIndexOfBalance = CursorUtil.getColumnIndexOrThrow(_cursor, "balance");
@@ -210,6 +217,8 @@ public final class AccountDao_Impl implements AccountDao {
             final AccountEntity _item;
             final int _tmpId;
             _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpType;
@@ -226,7 +235,7 @@ public final class AccountDao_Impl implements AccountDao {
             }
             final int _tmpModeId;
             _tmpModeId = _cursor.getInt(_cursorIndexOfModeId);
-            _item = new AccountEntity(_tmpId,_tmpName,_tmpType,_tmpBalance,_tmpCurrency,_tmpLastFour,_tmpModeId);
+            _item = new AccountEntity(_tmpId,_tmpUserId,_tmpName,_tmpType,_tmpBalance,_tmpCurrency,_tmpLastFour,_tmpModeId);
             _result.add(_item);
           }
           return _result;

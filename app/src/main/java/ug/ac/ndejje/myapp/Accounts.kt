@@ -40,7 +40,8 @@ fun AccountsScreen(
     authManager: AuthManager
 ) {
     val scope = rememberCoroutineScope()
-    val accounts by accountRepository.allAccounts.collectAsState(initial = emptyList())
+    val currentUserId = authManager.getCurrentUserId()
+    val accounts by accountRepository.getAllAccounts(currentUserId).collectAsState(initial = emptyList())
     var editingAccount by remember { mutableStateOf<AccountEntity?>(null) }
     var showChangePinDialog by remember { mutableStateOf(false) }
 
@@ -62,7 +63,7 @@ fun AccountsScreen(
                         Icon(Icons.Filled.Lock, contentDescription = "Change PIN")
                     }
                     TextButton(onClick = { 
-                        editingAccount = AccountEntity(name = "New Account", type = "CHECKING", balance = 0.0)
+                        editingAccount = AccountEntity(userId = currentUserId, name = "New Account", type = "CHECKING", balance = 0.0)
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -233,7 +234,8 @@ fun ProfileScreen(
     authManager: AuthManager
 ) {
     val scope = rememberCoroutineScope()
-    val userProfile by userProfileRepository.userProfile.collectAsState(initial = null)
+    val currentUserId = authManager.getCurrentUserId()
+    val userProfile by userProfileRepository.getUserProfile(currentUserId).collectAsState(initial = null)
     val snackbarHostState = remember { SnackbarHostState() }
     
     var name by remember { mutableStateOf("") }
@@ -268,7 +270,15 @@ fun ProfileScreen(
                 actions = {
                     TextButton(onClick = {
                         scope.launch {
-                            val profile = UserProfile(name = name, email = email, photoUri = photoUri)
+                            val profile = UserProfile(
+                                id = currentUserId,
+                                name = name,
+                                username = userProfile?.username ?: authManager.getCurrentUsername(),
+                                email = email,
+                                photoUri = photoUri,
+                                passwordHash = userProfile?.passwordHash,
+                                pinHash = userProfile?.pinHash
+                            )
                             userProfileRepository.insert(profile)
                             snackbarHostState.showSnackbar("Profile changes saved successfully")
                         }

@@ -21,12 +21,17 @@ import androidx.compose.foundation.lazy.itemsIndexed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionsScreen(currency: String, onNavigateBack: () -> Unit, onNavigateToAddTransaction: () -> Unit) {
+fun TransactionsScreen(
+    currency: String,
+    onNavigateBack: () -> Unit,
+    onNavigateToAddTransaction: () -> Unit,
+    userId: Int
+) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Income", "Expense", "Pending")
     
-    val transactions = remember { mutableStateListOf(*getFullMockTransactions().toTypedArray()) }
+    val transactions = remember { mutableStateListOf(*getFullMockTransactions(userId).toTypedArray()) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -279,11 +284,11 @@ fun TransactionListItem(transaction: Transaction, currency: String) {
     }
 }
 
-fun getFullMockTransactions() = listOf(
-    Transaction(1, "Starbucks", "Food", 5.25, "Today", "2:30 PM", true),
-    Transaction(2, "Uber", "Transport", 12.99, "Today", "8:15 AM", true),
-    Transaction(3, "Salary", "Income", 3200.0, "Yesterday", "9:00 AM", false),
-    Transaction(4, "Whole Foods", "Groceries", 87.43, "Yesterday", "6:45 PM", true),
-    Transaction(5, "Netflix", "Subscription", 15.99, "Apr 10", "Recurring - Monthly", true),
-    Transaction(6, "Rent", "Housing", 1200.0, "Apr 1", "Monthly", true, isPending = true)
+fun getFullMockTransactions(userId: Int = 1) = listOf(
+    Transaction(1, userId, "Starbucks", "Food", 5.25, "Today", "2:30 PM", true),
+    Transaction(2, userId, "Uber", "Transport", 12.99, "Today", "8:15 AM", true),
+    Transaction(3, userId, "Salary", "Income", 3200.0, "Yesterday", "9:00 AM", false),
+    Transaction(4, userId, "Whole Foods", "Groceries", 87.43, "Yesterday", "6:45 PM", true),
+    Transaction(5, userId, "Netflix", "Subscription", 15.99, "Apr 10", "Recurring - Monthly", true),
+    Transaction(6, userId, "Rent", "Housing", 1200.0, "Apr 1", "Monthly", true, isPending = true)
 )

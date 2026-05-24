@@ -7,6 +7,7 @@ import java.util.Date
 @Entity(tableName = "transactions")
 data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val title: String,
     val category: String,
     val amountValue: Double,
@@ -25,6 +26,7 @@ data class Transaction(
 @Entity(tableName = "categories")
 data class Category(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val name: String,
     val icon: String,
     val type: String, // "income", "expense"
@@ -34,6 +36,7 @@ data class Category(
 @Entity(tableName = "accounts")
 data class AccountEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val name: String,
     val type: String,
     val balance: Double,
@@ -45,6 +48,7 @@ data class AccountEntity(
 @Entity(tableName = "budgets")
 data class BudgetEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val category: String,
     val limit: Double,
     val spent: Double,
@@ -54,6 +58,7 @@ data class BudgetEntity(
 @Entity(tableName = "recurring_transactions")
 data class RecurringTransaction(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val name: String,
     val amount: Double,
     val frequency: String,
@@ -64,6 +69,7 @@ data class RecurringTransaction(
 @Entity(tableName = "ai_conversations")
 data class AIConversation(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val role: String, // "user", "assistant"
     val content: String,
     val timestamp: Long = System.currentTimeMillis(),
@@ -82,24 +88,28 @@ data class CrashLog(
 @Entity(tableName = "analytics_events")
 data class AnalyticsEvent(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val userId: Int,
     val eventName: String,
     val params: String, // JSON
     val timestamp: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "user_profile")
+@Entity(tableName = "user_profile", indices = [Index(value = ["username"], unique = true)])
 data class UserProfile(
-    @PrimaryKey val id: Int = 1,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
+    val username: String,
     val email: String,
     val currency: String = "Shs",
     val photoUri: String? = null,
-    val passwordHash: String? = null
+    val passwordHash: String? = null,
+    val pinHash: String? = null
 )
 
 @Entity(tableName = "notifications")
 data class NotificationEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val userId: Int,
     val type: String, // "budget_alert", "bill_reminder", "ai_insight", "transaction"
     val title: String,
     val message: String,

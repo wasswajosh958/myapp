@@ -40,24 +40,25 @@ public final class CategoryDao_Impl implements CategoryDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `categories` (`id`,`name`,`icon`,`type`,`modeId`) VALUES (nullif(?, 0),?,?,?,?)";
+        return "INSERT OR ABORT INTO `categories` (`id`,`userId`,`name`,`icon`,`type`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final Category entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getName());
-        statement.bindString(3, entity.getIcon());
-        statement.bindString(4, entity.getType());
-        statement.bindLong(5, entity.getModeId());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getName());
+        statement.bindString(4, entity.getIcon());
+        statement.bindString(5, entity.getType());
+        statement.bindLong(6, entity.getModeId());
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM categories";
+        final String _query = "DELETE FROM categories WHERE userId = ?";
         return _query;
       }
     };
@@ -82,12 +83,14 @@ public final class CategoryDao_Impl implements CategoryDao {
   }
 
   @Override
-  public Object deleteAll(final Continuation<? super Unit> $completion) {
+  public Object deleteAll(final int userId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAll.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, userId);
         try {
           __db.beginTransaction();
           try {
@@ -105,9 +108,11 @@ public final class CategoryDao_Impl implements CategoryDao {
   }
 
   @Override
-  public Flow<List<Category>> getAllCategories() {
-    final String _sql = "SELECT * FROM categories";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+  public Flow<List<Category>> getAllCategories(final int userId) {
+    final String _sql = "SELECT * FROM categories WHERE userId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, userId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"categories"}, new Callable<List<Category>>() {
       @Override
       @NonNull
@@ -115,6 +120,7 @@ public final class CategoryDao_Impl implements CategoryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfIcon = CursorUtil.getColumnIndexOrThrow(_cursor, "icon");
           final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
@@ -124,6 +130,8 @@ public final class CategoryDao_Impl implements CategoryDao {
             final Category _item;
             final int _tmpId;
             _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpIcon;
@@ -132,7 +140,7 @@ public final class CategoryDao_Impl implements CategoryDao {
             _tmpType = _cursor.getString(_cursorIndexOfType);
             final int _tmpModeId;
             _tmpModeId = _cursor.getInt(_cursorIndexOfModeId);
-            _item = new Category(_tmpId,_tmpName,_tmpIcon,_tmpType,_tmpModeId);
+            _item = new Category(_tmpId,_tmpUserId,_tmpName,_tmpIcon,_tmpType,_tmpModeId);
             _result.add(_item);
           }
           return _result;

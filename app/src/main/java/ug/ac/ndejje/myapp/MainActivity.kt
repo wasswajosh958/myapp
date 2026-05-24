@@ -4,19 +4,14 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.*
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 class MainActivity : FragmentActivity() {
     private lateinit var appContainer: AppContainer
@@ -50,6 +45,7 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
     val authManager = remember { AuthManager(context) }
     val currencyState = settingsDataStore.currencyFlow.collectAsState(initial = "Shs")
     val currency = currencyState.value
+    val currentUserId = authManager.getCurrentUserId()
 
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") {
@@ -73,21 +69,26 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             LoginScreen(
                 onNavigateToRegister = { navController.navigate("register") },
                 onLoginSuccess = { 
-                    authManager.setLoggedIn(true)
                     navController.navigate("home") { popUpTo("login") { inclusive = true } }
-                }
+                },
+                userProfileRepository = appContainer.userProfileRepository,
+                authManager = authManager
             )
         }
         composable("register") {
             RegisterScreen(
                 onNavigateBack = { navController.popBackStack() },
-                userProfileRepository = appContainer.userProfileRepository
+                userProfileRepository = appContainer.userProfileRepository,
+                authManager = authManager
             )
         }
         composable("home") {
             HomeScreen(
                 currency = currency,
-                onLogout = { navController.navigate("logout") },
+                onLogout = { 
+                    authManager.clearSession()
+                    navController.navigate("login") { popUpTo("home") { inclusive = true } }
+                },
                 onNavigateToTransactions = { navController.navigate("transactions") },
                 onNavigateToAddTransaction = { navController.navigate("add_transaction") },
                 onNavigateToReports = { navController.navigate("reports") },
@@ -98,16 +99,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 onNavigateToNotifications = { navController.navigate("notifications") },
                 onCurrencyChange = { },
                 userProfileRepository = appContainer.userProfileRepository,
-                database = appContainer.database
-            )
-        }
-        composable("logout") {
-            LogoutScreen(
-                onConfirm = {
-                    authManager.clearSession()
-                    navController.navigate("login") { popUpTo("home") { inclusive = true } }
-                },
-                onCancel = { navController.popBackStack() }
+                database = appContainer.database,
+                authManager = authManager
             )
         }
         composable("settings") {
@@ -157,7 +150,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToSettings = { navController.navigate("settings") },
                 onNavigateToDetail = { id -> navController.navigate("notification_detail/$id") },
-                notificationRepository = appContainer.notificationRepository
+                notificationRepository = appContainer.notificationRepository,
+                userId = currentUserId
             )
         }
         composable("notification_detail/{id}") { backStackEntry ->
@@ -172,7 +166,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             TransactionsScreen(
                 currency = currency,
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToAddTransaction = { navController.navigate("add_transaction") }
+                onNavigateToAddTransaction = { navController.navigate("add_transaction") },
+                userId = currentUserId
             )
         }
         composable("add_transaction") {

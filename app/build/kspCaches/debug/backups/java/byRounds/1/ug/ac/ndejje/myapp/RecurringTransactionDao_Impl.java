@@ -40,25 +40,26 @@ public final class RecurringTransactionDao_Impl implements RecurringTransactionD
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `recurring_transactions` (`id`,`name`,`amount`,`frequency`,`nextDueDate`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `recurring_transactions` (`id`,`userId`,`name`,`amount`,`frequency`,`nextDueDate`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final RecurringTransaction entity) {
         statement.bindLong(1, entity.getId());
-        statement.bindString(2, entity.getName());
-        statement.bindDouble(3, entity.getAmount());
-        statement.bindString(4, entity.getFrequency());
-        statement.bindLong(5, entity.getNextDueDate());
-        statement.bindLong(6, entity.getModeId());
+        statement.bindLong(2, entity.getUserId());
+        statement.bindString(3, entity.getName());
+        statement.bindDouble(4, entity.getAmount());
+        statement.bindString(5, entity.getFrequency());
+        statement.bindLong(6, entity.getNextDueDate());
+        statement.bindLong(7, entity.getModeId());
       }
     };
     this.__preparedStmtOfDeleteAll = new SharedSQLiteStatement(__db) {
       @Override
       @NonNull
       public String createQuery() {
-        final String _query = "DELETE FROM recurring_transactions";
+        final String _query = "DELETE FROM recurring_transactions WHERE userId = ?";
         return _query;
       }
     };
@@ -84,12 +85,14 @@ public final class RecurringTransactionDao_Impl implements RecurringTransactionD
   }
 
   @Override
-  public Object deleteAll(final Continuation<? super Unit> $completion) {
+  public Object deleteAll(final int userId, final Continuation<? super Unit> $completion) {
     return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
       @Override
       @NonNull
       public Unit call() throws Exception {
         final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteAll.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, userId);
         try {
           __db.beginTransaction();
           try {
@@ -107,9 +110,11 @@ public final class RecurringTransactionDao_Impl implements RecurringTransactionD
   }
 
   @Override
-  public Flow<List<RecurringTransaction>> getAll() {
-    final String _sql = "SELECT * FROM recurring_transactions";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+  public Flow<List<RecurringTransaction>> getAll(final int userId) {
+    final String _sql = "SELECT * FROM recurring_transactions WHERE userId = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, userId);
     return CoroutinesRoom.createFlow(__db, false, new String[] {"recurring_transactions"}, new Callable<List<RecurringTransaction>>() {
       @Override
       @NonNull
@@ -117,6 +122,7 @@ public final class RecurringTransactionDao_Impl implements RecurringTransactionD
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfAmount = CursorUtil.getColumnIndexOrThrow(_cursor, "amount");
           final int _cursorIndexOfFrequency = CursorUtil.getColumnIndexOrThrow(_cursor, "frequency");
@@ -127,6 +133,8 @@ public final class RecurringTransactionDao_Impl implements RecurringTransactionD
             final RecurringTransaction _item;
             final int _tmpId;
             _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final double _tmpAmount;
@@ -137,7 +145,7 @@ public final class RecurringTransactionDao_Impl implements RecurringTransactionD
             _tmpNextDueDate = _cursor.getLong(_cursorIndexOfNextDueDate);
             final int _tmpModeId;
             _tmpModeId = _cursor.getInt(_cursorIndexOfModeId);
-            _item = new RecurringTransaction(_tmpId,_tmpName,_tmpAmount,_tmpFrequency,_tmpNextDueDate,_tmpModeId);
+            _item = new RecurringTransaction(_tmpId,_tmpUserId,_tmpName,_tmpAmount,_tmpFrequency,_tmpNextDueDate,_tmpModeId);
             _result.add(_item);
           }
           return _result;

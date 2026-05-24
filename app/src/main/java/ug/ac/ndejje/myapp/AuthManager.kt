@@ -19,6 +19,17 @@ class AuthManager(private val context: Context) {
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
     )
 
+    fun setCurrentUser(userId: Int, username: String) {
+        prefs.edit()
+            .putInt("current_user_id", userId)
+            .putString("current_username", username)
+            .putBoolean("is_logged_in", true)
+            .apply()
+    }
+
+    fun getCurrentUserId(): Int = prefs.getInt("current_user_id", -1)
+    fun getCurrentUsername(): String = prefs.getString("current_username", "") ?: ""
+
     fun setPin(pin: String) {
         prefs.edit().putString("user_pin", pin).apply()
     }
@@ -43,7 +54,11 @@ class AuthManager(private val context: Context) {
     fun isLoggedIn(): Boolean = prefs.getBoolean("is_logged_in", false)
 
     fun clearSession() {
-        prefs.edit().remove("is_logged_in").apply()
+        prefs.edit()
+            .remove("is_logged_in")
+            .remove("current_user_id")
+            .remove("current_username")
+            .apply()
     }
 
     fun isBiometricAvailable(): Boolean {

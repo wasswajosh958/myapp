@@ -4,7 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.flow.first
 import java.math.BigDecimal
 
-class AIBrain(private val database: AppDatabase) {
+class AIBrain(private val database: AppDatabase, private val userId: Int) {
 
     suspend fun processQuery(query: String): String {
         val lowerQuery = query.lowercase()
@@ -18,19 +18,19 @@ class AIBrain(private val database: AppDatabase) {
     }
 
     private suspend fun getBalanceInsight(): String {
-        val accounts = database.accountDao().getAllAccounts().first()
+        val accounts = database.accountDao().getAllAccounts(userId).first()
         val total = accounts.sumOf { it.balance }
         return "Your total balance across ${accounts.size} accounts is Shs ${String.format("%,.0f", total)}."
     }
 
     private suspend fun getSpendingInsight(): String {
-        val transactions = database.transactionDao().getAllTransactions().first()
+        val transactions = database.transactionDao().getAllTransactions(userId).first()
         val totalSpent = transactions.filter { it.isExpense }.sumOf { it.amountValue }
         return "You have recorded total expenses of Shs ${String.format("%,.0f", totalSpent)}."
     }
 
     private suspend fun getBudgetInsight(): String {
-        val budgets = database.budgetDao().getAllBudgets().first()
+        val budgets = database.budgetDao().getAllBudgets(userId).first()
         if (budgets.isEmpty()) return "You haven't set any budgets yet."
         
         val totalLimit = budgets.sumOf { it.limit }
