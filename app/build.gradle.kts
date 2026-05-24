@@ -68,4 +68,12 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.work.runtime.ktx)
     implementation(libs.sqlcipher)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+    implementation(libs.billing.ktx)
+    implementation(libs.coil.compose)
+    implementation(libs.plaid.link)
+    implementation(libs.play.services.auth)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.api.services.drive)
 }
