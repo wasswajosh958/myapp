@@ -1,69 +1,47 @@
-# FinTrack
+# FinTrack - Advanced Financial Tracking App
 
-An Android application built with Jetpack Compose featuring a complete authentication flow and a Hybrid AI Assistant.
+FinTrack is a production-ready financial management application built with modern Android technologies. It features AI integration, secure local storage, biometric authentication, and comprehensive financial tracking capabilities.
 
-## Features
-- **Hybrid AI Assistant**: A conversational assistant that handles financial queries on-device (private) and general knowledge in the cloud.
-- **Voice Feedback**: Integrated Text-to-Speech (TTS) so the AI reads its responses aloud.
-- **Login Screen**: Secure login with password visibility toggle and field validation.
-- **Registration Screen**: Create an account with email and password (minimum 8 characters). Includes password matching validation.
-- **Home Screen Dashboard**: 
-    - Real-time financial summary cards (Balance, Income, Expenses, Savings).
-    - Expense Analytics visualization.
-    - Recent transactions list with categories.
-    - Savings goals progress tracking.
-- **Transactions List Screen**:
-    - Detailed view of all transactions grouped by date.
-    - Search functionality with voice command support.
-    - Advanced filtering (Income, Expense, Pending).
-    - Swipe-to-delete and swipe-to-edit actions.
-- **Add/Edit Transaction Screen**:
-    - Create or modify expenses, income, and transfers.
-    - Custom numeric keypad for fast amount entry.
-    - AI-powered "Quick-Add" suggestions based on spending habits.
-    - Voice-to-form integration ("Add $45 for groceries at Safeway yesterday").
-    - Attachment support for receipts.
-- **Budget Management Screen**:
-    - Set monthly and category-specific budgets.
-    - Real-time progress tracking with visual alerts.
-    - Edit or delete budgets with a few taps.
-- **Reports & Insights Screen**:
-    - Visualize spending trends with interactive daily charts.
-    - Category breakdown via donut chart visualization.
-    - Comparison metrics (vs last month, income vs expenses).
-    - Top spending categories with over-budget indicators.
-    - AI Insights for personalized financial advice.
-- **Accounts Screen**:
-    - Manage linked financial accounts (Checking, Savings, Credit Cards, Cash).
-    - Real-time Net Worth calculation (Assets vs Liabilities).
-    - Visual indicators for payment due dates and APY details.
-    - Quick actions like "Pay Now", "Transfer", and "View Transactions".
-- **Profile Screen**:
-    - Manage personal account information (Name, Email).
-    - Security settings for password management.
-    - Profile photo upload and management.
-    - Centralized management for linked financial accounts.
-- **Notification Screen**:
-    - Real-time alerts for transactions, budget warnings, and savings goals.
-    - Smart AI financial insights and personalized advice.
-    - Bill and payment reminders with priority levels.
-    - Security notifications and login alerts.
-    - Easy management with "Mark all as read" and snooze options.
-- **Navigation**: Seamless transition between Home, Transactions, Reports, Budgets, and Profile via a modern Bottom Bar.
-- **UI/UX**: 
-    - Fully scrollable screens with keyboard awareness (`imePadding`).
-    - Custom App Icon and Material 3 design components.
-    - Password preview (show/hide) toggle.
+## Key Features
+
+- **AI Hybrid Assistant**: Integrated with MediaPipe GenAI for local insights and cloud fallback for advanced financial planning.
+- **Secure Storage**: Uses Room database with SQLCipher for full-disk encryption.
+- **Biometric Authentication**: Login using fingerprint or face recognition (via Camera/BiometricPrompt).
+- **Notification Center**: Detailed notification management with swipe-to-delete and click-to-read functionality.
+- **Subscription Model**: Google Play Billing integration for premium feature access.
+- **Cloud Sync**: Optional backups to Google Drive using the Drive API with folder selection.
+- **Bank Integration**: Transaction auto-importing using the Plaid Link SDK.
+- **Home Widget**: Glance-based home screen widget for real-time balance tracking.
+- **Customizable UI**: Jetpack Compose-based Material 3 theme with multiple accent colors and dark/light modes.
+- **Voice Interaction**: Text-to-Speech (UK English) and Speech-to-Text for a hands-free experience.
+
+## Architecture
+
+The app follows a modern Clean Architecture approach:
+- **UI Layer**: Jetpack Compose with ViewModels.
+- **Domain Layer**: Repositories managing data flow.
+- **Data Layer**: Room database (DAOs), EncryptedSharedPreferences (Auth), and external APIs (Plaid, Drive).
+- **DI**: AppContainer for dependency management.
 
 ## Tech Stack
-- **AI**: Google MediaPipe GenAI (On-device LLM), ML Kit GenAI Speech Recognition.
-- **Voice**: Android TextToSpeech (TTS).
-- **Language**: Kotlin 2.1.0+
-- **UI Framework**: Jetpack Compose
-- **Navigation**: Jetpack Navigation Compose
-- **Build System**: Gradle (Kotlin DSL) with Version Catalogs
 
-## How to Run
+- **Language**: Kotlin 2.1.0
+- **UI**: Jetpack Compose (BOM 2024.02.01)
+- **Database**: Room 2.6.1 + SQLCipher 4.5.4
+- **Security**: Android Biometric, Security Crypto (EncryptedSharedPreferences)
+- **Background Tasks**: WorkManager
+- **Networking**: Retrofit + Gson
+- **Image Loading**: Coil
+- **AI**: MediaPipe GenAI, MLKit Speech
+- **Widget**: Jetpack Glance
+
+## Getting Started
+
 1. Clone the repository.
-2. Open in Android Studio (Iguana or newer recommended).
-3. Sync Gradle and run on an emulator or physical device (e.g., Oppo A57).
+2. Add your Plaid API keys and Google Drive client IDs to `strings.xml`.
+3. Build and run on an Android device (Min SDK 23).
+4. For AI features, ensure the device supports MediaPipe GenAI.
+
+## License
+
+This project is licensed under the MIT License.
