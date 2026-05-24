@@ -53,6 +53,12 @@ class AuthManager(private val context: Context) {
         ) == BiometricManager.BIOMETRIC_SUCCESS
     }
 
+    fun isBiometricEnabled(): Boolean = prefs.getBoolean("biometric_enabled", false)
+
+    fun setBiometricEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("biometric_enabled", enabled).apply()
+    }
+
     fun isOnboardingCompleted(): Boolean = prefs.getBoolean("onboarding_completed", false)
 
     fun setOnboardingCompleted(completed: Boolean) {
