@@ -89,11 +89,24 @@ data class AnalyticsEvent(
 
 @Entity(tableName = "user_profile")
 data class UserProfile(
-    @PrimaryKey val id: Int = 1, // We only have one local user
+    @PrimaryKey val id: Int = 1,
     val name: String,
     val email: String,
     val currency: String = "Shs",
-    val photoUri: String? = null
+    val photoUri: String? = null,
+    val passwordHash: String? = null
+)
+
+@Entity(tableName = "notifications")
+data class NotificationEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val type: String, // "budget_alert", "bill_reminder", "ai_insight", "transaction"
+    val title: String,
+    val message: String,
+    val relatedId: Int? = null,
+    val isRead: Boolean = false,
+    val isDeleted: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis()
 )
 
 data class ChatMessage(

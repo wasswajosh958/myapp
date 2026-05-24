@@ -1,113 +1,57 @@
 package ug.ac.ndejje.myapp
 
 import android.content.Context
-import androidx.room.*
-import net.sqlcipher.database.SupportFactory
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import net.sqlcipher.database.SQLiteDatabase
-
-@Dao
-interface TransactionDao {
-    @Query("SELECT * FROM transactions ORDER BY id DESC")
-    suspend fun getAll(): List<Transaction>
-
-    @Insert
-    suspend fun insert(transaction: Transaction)
-
-    @Delete
-    suspend fun delete(transaction: Transaction)
-}
-
-@Dao
-interface CategoryDao {
-    @Query("SELECT * FROM categories")
-    suspend fun getAll(): List<Category>
-
-    @Insert
-    suspend fun insert(category: Category)
-}
-
-@Dao
-interface AccountDao {
-    @Query("SELECT * FROM accounts")
-    suspend fun getAll(): List<AccountEntity>
-
-    @Insert
-    suspend fun insert(account: AccountEntity)
-
-    @Update
-    suspend fun update(account: AccountEntity)
-}
-
-@Dao
-interface BudgetDao {
-    @Query("SELECT * FROM budgets")
-    suspend fun getAll(): List<BudgetEntity>
-
-    @Insert
-    suspend fun insert(budget: BudgetEntity)
-
-    @Update
-    suspend fun update(budget: BudgetEntity)
-}
-
-@Dao
-interface CrashLogDao {
-    @Insert
-    suspend fun insert(log: CrashLog)
-}
-
-@Dao
-interface UserProfileDao {
-    @Query("SELECT * FROM user_profile WHERE id = 1 LIMIT 1")
-    suspend fun getUser(): UserProfile?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveUser(user: UserProfile)
-}
+import net.sqlcipher.database.SupportFactory
 
 @Database(
     entities = [
-        Transaction::class, 
-        Category::class, 
-        AccountEntity::class, 
-        BudgetEntity::class, 
-        RecurringTransaction::class, 
+        Transaction::class,
+        Category::class,
+        AccountEntity::class,
+        BudgetEntity::class,
+        RecurringTransaction::class,
         AIConversation::class,
         CrashLog::class,
         AnalyticsEvent::class,
-        UserProfile::class
+        UserProfile::class,
+        NotificationEntity::class
     ],
-    version = 2
+    version = 2,
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun categoryDao(): CategoryDao
     abstract fun accountDao(): AccountDao
     abstract fun budgetDao(): BudgetDao
-    abstract fun crashLogDao(): CrashLogDao
+    abstract fun recurringDao(): RecurringTransactionDao
+    abstract fun aiConversationDao(): AIConversationDao
     abstract fun userProfileDao(): UserProfileDao
+    abstract fun notificationDao(): NotificationDao
 
     companion object {
+        @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        fun getInstance(context: Context): AppDatabase {
-            if (INSTANCE == null) {
-                synchronized(AppDatabase::class) {
-                    // In a production app, we would get the passphrase from KeyStore
-                    val passphrase = SQLiteDatabase.getBytes("secret_passphrase".toCharArray())
-                    val factory = SupportFactory(passphrase)
-                    
-                    INSTANCE = Room.databaseBuilder(
-                        context.applicationContext,
-                        AppDatabase::class.java,
-                        "fintrack.db"
-                    )
+        fun getInstance(context: Context, passphrase: ByteArray): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val factory = SupportFactory(passphrase)
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "fintrack_db"
+                )
                     .openHelperFactory(factory)
                     .fallbackToDestructiveMigration()
                     .build()
-                }
+                INSTANCE = instance
+                instance
             }
-            return INSTANCE!!
         }
     }
 }
