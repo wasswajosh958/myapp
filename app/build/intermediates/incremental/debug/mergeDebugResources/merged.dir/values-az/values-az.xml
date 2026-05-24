@@ -54,9 +54,28 @@
     <string name="common_open_on_phone">Telefonda açın</string>
     <string name="common_signin_button_text">Daxil olun</string>
     <string name="common_signin_button_text_long">Google ilə daxil olun</string>
+    <string msgid="5912733858573823945" name="confirm_device_credential_password">"Parol istifadə edin"</string>
+    <string msgid="3260749812566568062" name="copy_toast_msg">"Link buferə kopyalandı"</string>
     <string msgid="8038256446254964252" name="default_error_message">"Yanlış daxiletmə"</string>
+    <string msgid="4776854077120974966" name="default_error_msg">"Naməlum xəta"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Popap Pəncərəsi"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Aşağı açılan menyu"</string>
+    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"Linki kopyalayın"</string>
+    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"Brauzerdə açın"</string>
+    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"Linki paylaşın"</string>
+    <string msgid="1072308044213194243" name="fingerprint_dialog_touch_sensor">"Barmaq izi sensoruna klikləyin"</string>
+    <string msgid="8216738333501875566" name="fingerprint_error_hw_not_available">"Barmaq izi avadanlığı əlçatan deyil."</string>
+    <string msgid="6306988885793029438" name="fingerprint_error_hw_not_present">"Bu cihazda barmaq izi sensoru yoxdur"</string>
+    <string msgid="7291787166416782245" name="fingerprint_error_lockout">"Həddən çox cəhd oldu. Sonra sınayın."</string>
+    <string msgid="7520712796891883488" name="fingerprint_error_no_fingerprints">"Barmaq izi qeydə alınmayıb."</string>
+    <string msgid="7627716295344353987" name="fingerprint_error_user_canceled">"Barmaq izi əməliyyatı istifadəçi tərəfindən ləğv edildi."</string>
+    <string msgid="3873359464293253009" name="fingerprint_not_recognized">"Tanınmır"</string>
+    <string msgid="3791785319221634505" name="generic_error_no_device_credential">"PIN, model və ya parol ayarlanmayıb."</string>
+    <string msgid="1807436368654974044" name="generic_error_no_keyguard">"Bu cihaz PIN, model və ya parolu dəstəkləmir."</string>
+    <string msgid="7309881387583143581" name="generic_error_user_canceled">"İstifadəçi doğrulamanı ləğv edib."</string>
+    <string msgid="2863935784364843033" name="glance_error_layout_text"><b><tt>"Adb logcat"</tt></b>" istifadə edərək, "<b><tt>"GlanceAppWidget"</tt></b>" axtararaq dəqiq xətanı yoxlayın"</string>
+    <string msgid="5191168365305634625" name="glance_error_layout_text_v2">"Kontenti göstərmək olmur"</string>
+    <string msgid="3631961919234443531" name="glance_error_layout_title"><b>"Glance tətbiq vidceti xətası"</b></string>
     <string msgid="6827826412747255547" name="in_progress">"Davam edir"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Qismən yoxlanıb"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Aşağıdakı vərəqi yığcamlaşdırın"</string>

@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "ug.ac.ndejje.myapp-mergeDebugResources-52:/values-v17/values-v17.xml",
+            "outputFile": "ug.ac.ndejje.myapp-mergeDebugResources-82:/values-v17/values-v17.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\wassw\\.gradle\\caches\\9.0.0\\transforms\\47c675d4f074faab99d885cddb4b114f\\transformed\\appcompat-1.6.1\\res\\values-v17\\values-v17.xml",
+                    "source": "C:\\Users\\wassw\\.gradle\\caches\\9.0.0\\transforms\\20515cbc7c39da53b31aaecf117fd09f\\transformed\\appcompat-1.6.1\\res\\values-v17\\values-v17.xml",
                     "from": {
                         "startLines": "2,5,9,12,15,18,22,25,29,33,37,40,43,46,50,53,57",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

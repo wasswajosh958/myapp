@@ -28,10 +28,10 @@ class MainActivity : FragmentActivity() {
         setContent {
             val context = LocalContext.current
             val settingsDataStore = remember { SettingsDataStore(context) }
-            val themeMode by settingsDataStore.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
-            val accentColor by settingsDataStore.accentColorFlow.collectAsState(initial = AccentColor.GREEN)
+            val themeModeState = settingsDataStore.themeModeFlow.collectAsState<ThemeMode, ThemeMode>(initial = ThemeMode.SYSTEM)
+            val accentColorState = settingsDataStore.accentColorFlow.collectAsState<AccentColor, AccentColor>(initial = AccentColor.GREEN)
 
-            FinTrackTheme(themeMode = themeMode, accentColor = accentColor) {
+            FinTrackTheme(themeMode = themeModeState.value, accentColor = accentColorState.value) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -48,7 +48,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
     val navController = rememberNavController()
     val context = LocalContext.current
     val authManager = remember { AuthManager(context) }
-    val currency by settingsDataStore.currencyFlow.collectAsState(initial = "Shs")
+    val currencyState = settingsDataStore.currencyFlow.collectAsState(initial = "Shs")
+    val currency = currencyState.value
 
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") {
@@ -78,7 +79,10 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             )
         }
         composable("register") {
-            RegisterScreen(onNavigateBack = { navController.popBackStack() })
+            RegisterScreen(
+                onNavigateBack = { navController.popBackStack() },
+                userProfileRepository = appContainer.userProfileRepository
+            )
         }
         composable("home") {
             HomeScreen(
@@ -92,7 +96,9 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 onNavigateToProfile = { navController.navigate("profile") },
                 onNavigateToSettings = { navController.navigate("settings") },
                 onNavigateToNotifications = { navController.navigate("notifications") },
-                onCurrencyChange = { }
+                onCurrencyChange = { },
+                userProfileRepository = appContainer.userProfileRepository,
+                database = appContainer.database
             )
         }
         composable("logout") {
@@ -112,13 +118,13 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             )
         }
         composable("appearance") {
-            val themeMode by settingsDataStore.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
-            val accentColor by settingsDataStore.accentColorFlow.collectAsState(initial = AccentColor.GREEN)
+            val themeModeState = settingsDataStore.themeModeFlow.collectAsState<ThemeMode, ThemeMode>(initial = ThemeMode.SYSTEM)
+            val accentColorState = settingsDataStore.accentColorFlow.collectAsState<AccentColor, AccentColor>(initial = AccentColor.GREEN)
             val scope = rememberCoroutineScope()
 
             AppearanceScreen(
-                currentTheme = themeMode,
-                currentAccent = accentColor,
+                currentTheme = themeModeState.value,
+                currentAccent = accentColorState.value,
                 onThemeChange = { mode -> scope.launch { settingsDataStore.setThemeMode(mode) } },
                 onAccentChange = { color -> scope.launch { settingsDataStore.setAccentColor(color) } },
                 onNavigateBack = { navController.popBackStack() }

@@ -15,6 +15,11 @@ class AccountRepository(private val dao: AccountDao) {
     suspend fun delete(account: AccountEntity) = dao.delete(account)
 }
 
+class CategoryRepository(private val dao: CategoryDao) {
+    val allCategories: Flow<List<Category>> = dao.getAllCategories()
+    suspend fun insert(category: Category) = dao.insert(category)
+}
+
 class UserProfileRepository(private val dao: UserProfileDao) {
     val userProfile: Flow<UserProfile?> = dao.getUserProfile()
     suspend fun insert(profile: UserProfile) = dao.insert(profile)

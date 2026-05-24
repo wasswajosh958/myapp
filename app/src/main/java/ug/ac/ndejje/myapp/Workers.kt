@@ -6,7 +6,8 @@ import java.util.concurrent.TimeUnit
 
 class RecurringTransactionWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val database = AppDatabase.getInstance(applicationContext)
+        val passphrase = "secure_password".toByteArray()
+        val database = AppDatabase.getInstance(applicationContext, passphrase)
         // logic to check and insert recurring transactions
         return Result.success()
     }
@@ -14,7 +15,8 @@ class RecurringTransactionWorker(context: Context, params: WorkerParameters) : C
 
 class BudgetCheckWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
-        val database = AppDatabase.getInstance(applicationContext)
+        val passphrase = "secure_password".toByteArray()
+        val database = AppDatabase.getInstance(applicationContext, passphrase)
         // logic to check budget limits and send notifications
         return Result.success()
     }

@@ -33,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun aiConversationDao(): AIConversationDao
     abstract fun userProfileDao(): UserProfileDao
     abstract fun notificationDao(): NotificationDao
+    abstract fun crashLogDao(): CrashLogDao
 
     companion object {
         @Volatile

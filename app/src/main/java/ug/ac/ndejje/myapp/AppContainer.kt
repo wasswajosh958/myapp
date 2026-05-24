@@ -9,7 +9,7 @@ class AppContainer(context: Context) {
     // For demonstration, using a fixed passphrase. In a production app,
     // this should be securely retrieved (e.g., from Keystore or user session).
     private val passphrase = "secure_password".toByteArray()
-    private val database = AppDatabase.getInstance(context, passphrase)
+    val database = AppDatabase.getInstance(context, passphrase)
 
     val transactionRepository: TransactionRepository = TransactionRepository(database.transactionDao())
     val categoryRepository: CategoryRepository = CategoryRepository(database.categoryDao())

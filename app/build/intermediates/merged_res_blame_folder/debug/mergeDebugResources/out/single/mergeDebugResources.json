@@ -1,78 +1,86 @@
 [
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/drawable_ic_launcher_background.xml.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/drawable/ic_launcher_background.xml"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/drawable_ic_launcher_background.xml.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xxhdpi/ic_launcher_round.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-hdpi_ic_launcher_round.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-hdpi/ic_launcher_round.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xxxhdpi/ic_launcher_foreground.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-mdpi_ic_launcher.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-mdpi/ic_launcher.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xhdpi_ic_launcher_foreground.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xhdpi/ic_launcher_foreground.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-mdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-hdpi_ic_launcher.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-hdpi/ic_launcher.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xxxhdpi/ic_launcher.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xhdpi_ic_launcher_foreground.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xhdpi/ic_launcher_foreground.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xhdpi_ic_launcher.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xhdpi/ic_launcher.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xxxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xxhdpi_ic_launcher.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xxhdpi/ic_launcher.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-hdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-mdpi_ic_launcher_foreground.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-mdpi/ic_launcher_foreground.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xxxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xxxhdpi/ic_launcher_foreground.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xhdpi/ic_launcher.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xxxhdpi/ic_launcher_round.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/layout_widget_initial.xml.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/layout/widget_initial.xml"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-hdpi_ic_launcher_foreground.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-hdpi/ic_launcher_foreground.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-mdpi_ic_launcher_foreground.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-mdpi/ic_launcher_foreground.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/drawable/ic_launcher_foreground.xml"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/xml_finance_widget_info.xml.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/xml/finance_widget_info.xml"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xxhdpi_ic_launcher_foreground.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xxhdpi/ic_launcher_foreground.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-hdpi_ic_launcher_foreground.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-hdpi/ic_launcher_foreground.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-mdpi_ic_launcher_round.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-mdpi/ic_launcher_round.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xxhdpi/ic_launcher_foreground.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-xhdpi_ic_launcher_round.webp.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-xhdpi/ic_launcher_round.webp"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-xhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "ug.ac.ndejje.myapp-debug-54:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "ug.ac.ndejje.myapp-main-56:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "ug.ac.ndejje.myapp-debug-84:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/mipmap-hdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "ug.ac.ndejje.myapp-debug-84:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "ug.ac.ndejje.myapp-main-86:/drawable/ic_launcher_foreground.xml"
     }
 ]

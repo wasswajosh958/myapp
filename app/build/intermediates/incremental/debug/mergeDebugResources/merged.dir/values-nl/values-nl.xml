@@ -54,9 +54,28 @@
     <string name="common_open_on_phone">Openen op telefoon</string>
     <string name="common_signin_button_text">Inloggen</string>
     <string name="common_signin_button_text_long">Inloggen met Google</string>
+    <string msgid="5912733858573823945" name="confirm_device_credential_password">"Wachtwoord gebruiken"</string>
+    <string msgid="3260749812566568062" name="copy_toast_msg">"Link naar klembord gekopieerd"</string>
     <string msgid="8038256446254964252" name="default_error_message">"Ongeldige invoer"</string>
+    <string msgid="4776854077120974966" name="default_error_msg">"Onbekende fout"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Pop-upvenster"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Dropdownmenu"</string>
+    <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"Link kopiëren"</string>
+    <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"Openen in browser"</string>
+    <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"Link delen"</string>
+    <string msgid="1072308044213194243" name="fingerprint_dialog_touch_sensor">"Raak de vingerafdruksensor aan"</string>
+    <string msgid="8216738333501875566" name="fingerprint_error_hw_not_available">"Hardware voor vingerafdruk niet beschikbaar."</string>
+    <string msgid="6306988885793029438" name="fingerprint_error_hw_not_present">"Dit apparaat heeft geen vingerafdruksensor"</string>
+    <string msgid="7291787166416782245" name="fingerprint_error_lockout">"Te veel pogingen. Probeer het later opnieuw."</string>
+    <string msgid="7520712796891883488" name="fingerprint_error_no_fingerprints">"Geen vingerafdrukken geregistreerd."</string>
+    <string msgid="7627716295344353987" name="fingerprint_error_user_canceled">"Vingerafdrukverificatie geannuleerd door gebruiker."</string>
+    <string msgid="3873359464293253009" name="fingerprint_not_recognized">"Niet herkend"</string>
+    <string msgid="3791785319221634505" name="generic_error_no_device_credential">"Geen pincode, patroon of wachtwoord ingesteld."</string>
+    <string msgid="1807436368654974044" name="generic_error_no_keyguard">"Dit apparaat ondersteunt geen pincode, patroon of wachtwoord."</string>
+    <string msgid="7309881387583143581" name="generic_error_user_canceled">"Verificatie geannuleerd door gebruiker."</string>
+    <string msgid="2863935784364843033" name="glance_error_layout_text">"Check de exacte fout via "<b><tt>"adb logcat"</tt></b>" door te zoeken naar "<b><tt>"GlanceAppWidget"</tt></b></string>
+    <string msgid="5191168365305634625" name="glance_error_layout_text_v2">"Kan content niet tonen"</string>
+    <string msgid="3631961919234443531" name="glance_error_layout_title"><b>"Fout met Glance-app-widget"</b></string>
     <string msgid="6827826412747255547" name="in_progress">"Bezig"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Gedeeltelijk aangevinkt"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Blad onderaan samenvouwen"</string>
@@ -119,6 +138,11 @@
     <string msgid="6610465462668679431" name="not_selected">"Niet geselecteerd"</string>
     <string msgid="875452955155264703" name="off">"Uit"</string>
     <string msgid="8655164131929253426" name="on">"Aan"</string>
+    <string name="plaid_error_internal_error_exit">Sluiten</string>
+    <string name="plaid_error_internal_server_error_something_went_wrong">Er is iets fout gegaan</string>
+    <string name="plaid_error_internal_server_error_try_again_later">U kunt het later opnieuw proberen of een andere bank zoeken om door te gaan</string>
+    <string name="plaid_loadingPane_requiresCredentialsAuthorizingWithServers">Autoriseren bij onze servers</string>
+    <string name="plaid_loadingPane_requiresCredentialsSendingCredentials">Inloggegevens verzenden</string>
     <string msgid="5941395253238309765" name="range_end">"Einde bereik"</string>
     <string msgid="7097486360902471446" name="range_start">"Start bereik"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Zoeken"</string>

@@ -6,8 +6,8 @@ import android.content.Context
  * A Hybrid AI Assistant that handles both on-device financial queries 
  * and cloud-based general knowledge queries.
  */
-class AiAssistant(context: Context) {
-    private val brain = AIBrain(context)
+class AiAssistant(context: Context, database: AppDatabase) {
+    private val brain = AIBrain(database)
     private val ttsHelper = TextToSpeechHelper(context)
 
     suspend fun getResponse(query: String): String {

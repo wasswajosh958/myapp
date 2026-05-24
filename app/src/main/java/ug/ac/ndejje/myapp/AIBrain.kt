@@ -4,8 +4,7 @@ import android.content.Context
 import kotlinx.coroutines.flow.first
 import java.math.BigDecimal
 
-class AIBrain(private val context: Context) {
-    private val database = AppDatabase.getInstance(context)
+class AIBrain(private val database: AppDatabase) {
 
     suspend fun processQuery(query: String): String {
         val lowerQuery = query.lowercase()
@@ -19,24 +18,24 @@ class AIBrain(private val context: Context) {
     }
 
     private suspend fun getBalanceInsight(): String {
-        val accounts = database.accountDao().getAll()
+        val accounts = database.accountDao().getAllAccounts().first()
         val total = accounts.sumOf { it.balance }
         return "Your total balance across ${accounts.size} accounts is Shs ${String.format("%,.0f", total)}."
     }
 
     private suspend fun getSpendingInsight(): String {
-        val transactions = database.transactionDao().getAll()
+        val transactions = database.transactionDao().getAllTransactions().first()
         val totalSpent = transactions.filter { it.isExpense }.sumOf { it.amountValue }
         return "You have recorded total expenses of Shs ${String.format("%,.0f", totalSpent)}."
     }
 
     private suspend fun getBudgetInsight(): String {
-        val budgets = database.budgetDao().getAll()
+        val budgets = database.budgetDao().getAllBudgets().first()
         if (budgets.isEmpty()) return "You haven't set any budgets yet."
         
         val totalLimit = budgets.sumOf { it.limit }
         val totalSpent = budgets.sumOf { it.spent }
-        val percent = (totalSpent / totalLimit * 100).toInt()
+        val percent = if (totalLimit > 0) (totalSpent / totalLimit * 100).toInt() else 0
         
         return "You've used $percent% of your total budget (Shs ${String.format("%,.0f", totalSpent)} out of Shs ${String.format("%,.0f", totalLimit)})."
     }

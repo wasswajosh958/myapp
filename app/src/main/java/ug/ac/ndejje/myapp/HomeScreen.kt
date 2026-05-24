@@ -35,11 +35,16 @@ fun HomeScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
-    onCurrencyChange: (String) -> Unit
+    onCurrencyChange: (String) -> Unit,
+    userProfileRepository: UserProfileRepository,
+    database: AppDatabase
 ) {
     val context = LocalContext.current
-    val assistant = remember { AiAssistant(context) }
+    val assistant = remember { AiAssistant(context, database) }
     val scope = rememberCoroutineScope()
+    val userProfile by userProfileRepository.userProfile.collectAsState(initial = null)
+    val userName = userProfile?.name ?: "User"
+
     var showAiChat by remember { mutableStateOf(false) }
     var chatMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
     var userQuery by remember { mutableStateOf("") }
@@ -108,7 +113,7 @@ fun HomeScreen(
                 title = {
                     Column {
                         Text("FinTrack", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text("Welcome back, Joshua", fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                        Text("Welcome back, $userName", fontSize = 14.sp, fontWeight = FontWeight.Normal)
                     }
                 },
                 actions = {

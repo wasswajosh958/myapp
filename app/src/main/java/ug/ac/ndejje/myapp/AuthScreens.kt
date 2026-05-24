@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import android.content.Context
 import android.content.ContextWrapper
 import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.launch
 
 fun Context.findActivity(): FragmentActivity? {
     var context = this
@@ -154,13 +155,18 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onLoginSuccess: () -> Unit) {
 }
 
 @Composable
-fun RegisterScreen(onNavigateBack: () -> Unit) {
+fun RegisterScreen(
+    onNavigateBack: () -> Unit,
+    userProfileRepository: UserProfileRepository
+) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var pin by remember { mutableStateOf("") }
     var confirmPin by remember { mutableStateOf("") }
     
     val context = LocalContext.current
     val authManager = remember { AuthManager(context) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -174,10 +180,19 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Full Name") },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Filled.Person, null) }
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Filled.Email, null) }
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
@@ -186,7 +201,8 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
             label = { Text("Set 4-digit PIN") },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Filled.Lock, null) }
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
@@ -195,7 +211,8 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
             label = { Text("Confirm PIN") },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Filled.Lock, null) }
         )
         
         Spacer(modifier = Modifier.height(32.dp))
@@ -204,11 +221,14 @@ fun RegisterScreen(onNavigateBack: () -> Unit) {
             onClick = {
                 if (pin == confirmPin && pin.length == 4) {
                     authManager.setPin(pin)
-                    onNavigateBack()
+                    scope.launch {
+                        userProfileRepository.insert(UserProfile(name = name, email = email))
+                        onNavigateBack()
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = email.isNotEmpty() && pin.length == 4 && pin == confirmPin
+            enabled = name.isNotEmpty() && email.isNotEmpty() && pin.length == 4 && pin == confirmPin
         ) {
             Text("Register")
         }

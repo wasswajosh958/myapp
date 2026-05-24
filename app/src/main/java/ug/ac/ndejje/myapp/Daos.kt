@@ -103,6 +103,12 @@ interface RecurringTransactionDao {
 }
 
 @Dao
+interface CrashLogDao {
+    @Insert
+    suspend fun insert(crashLog: CrashLog)
+}
+
+@Dao
 interface NotificationDao {
     @Query("SELECT * FROM notifications WHERE isDeleted = 0 ORDER BY createdAt DESC")
     fun getAllActive(): Flow<List<NotificationEntity>>

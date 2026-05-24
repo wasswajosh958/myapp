@@ -7,24 +7,29 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationDetailScreen(
-    notificationId: Int,
+    notificationId: Long,
     onNavigateBack: () -> Unit,
-    onDelete: () -> Unit
+    notificationRepository: NotificationRepository
 ) {
-    // In a real app, you would fetch this from the database using the notificationId
-    // For now, we simulate the detailed view
-    val title = "Budget Alert"
-    val message = "You have used 90% of your food budget. Consider reducing transport costs or dining out to stay within your Shs 500,000 monthly limit."
-    val timestamp = "2 mins ago"
+    var notification by remember { mutableStateOf<NotificationEntity?>(null) }
+    val scope = rememberCoroutineScope()
+    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
+
+    LaunchedEffect(notificationId) {
+        notification = notificationRepository.getById(notificationId)
+        if (notification != null && !notification!!.isRead) {
+            notificationRepository.markAsRead(notificationId)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -36,49 +41,45 @@ fun NotificationDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                    IconButton(onClick = {
+                        scope.launch {
+                            notificationRepository.delete(notificationId)
+                            onNavigateBack()
+                        }
+                    }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }
                 }
             )
         }
-    ) { innerPadding ->
+    ) { padding ->
         Column(
             modifier = Modifier
+                .padding(padding)
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(24.dp)
+                .padding(16.dp)
         ) {
-            Text(
-                text = title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = timestamp,
-                fontSize = 12.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-            
-            Text(
-                text = message,
-                fontSize = 16.sp,
-                lineHeight = 24.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Spacer(modifier = Modifier.weight(1f))
-            
-            Button(
-                onClick = onNavigateBack,
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text("Mark as Read")
+            if (notification != null) {
+                Text(
+                    text = notification!!.title,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Text(
+                    text = dateFormat.format(Date(notification!!.createdAt)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = notification!!.message,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            } else {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
