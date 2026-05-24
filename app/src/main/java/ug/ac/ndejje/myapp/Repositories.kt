@@ -2,34 +2,40 @@ package ug.ac.ndejje.myapp
 
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Repositories for managing data operations across different sources.
- */
-
-class TransactionRepository(private val transactionDao: TransactionDao) {
-    suspend fun getAllTransactions(): List<Transaction> = transactionDao.getAll()
-    suspend fun insertTransaction(transaction: Transaction) = transactionDao.insert(transaction)
-    suspend fun deleteTransaction(transaction: Transaction) = transactionDao.delete(transaction)
+class TransactionRepository(private val dao: TransactionDao) {
+    val allTransactions: Flow<List<Transaction>> = dao.getAllTransactions()
+    suspend fun insert(transaction: Transaction) = dao.insert(transaction)
+    suspend fun delete(transaction: Transaction) = dao.delete(transaction)
 }
 
-class CategoryRepository(private val categoryDao: CategoryDao) {
-    suspend fun getAllCategories(): List<Category> = categoryDao.getAll()
-    suspend fun insertCategory(category: Category) = categoryDao.insert(category)
+class AccountRepository(private val dao: AccountDao) {
+    val allAccounts: Flow<List<AccountEntity>> = dao.getAllAccounts()
+    suspend fun insert(account: AccountEntity) = dao.insert(account)
+    suspend fun update(account: AccountEntity) = dao.update(account)
+    suspend fun delete(account: AccountEntity) = dao.delete(account)
 }
 
-class AccountRepository(private val accountDao: AccountDao) {
-    suspend fun getAllAccounts(): List<AccountEntity> = accountDao.getAll()
-    suspend fun insertAccount(account: AccountEntity) = accountDao.insert(account)
-    suspend fun updateAccount(account: AccountEntity) = accountDao.update(account)
+class UserProfileRepository(private val dao: UserProfileDao) {
+    val userProfile: Flow<UserProfile?> = dao.getUserProfile()
+    suspend fun insert(profile: UserProfile) = dao.insert(profile)
+    suspend fun update(profile: UserProfile) = dao.update(profile)
 }
 
-class BudgetRepository(private val budgetDao: BudgetDao) {
-    suspend fun getAllBudgets(): List<BudgetEntity> = budgetDao.getAll()
-    suspend fun insertBudget(budget: BudgetEntity) = budgetDao.insert(budget)
-    suspend fun updateBudget(budget: BudgetEntity) = budgetDao.update(budget)
+class NotificationRepository(private val dao: NotificationDao) {
+    val activeNotifications: Flow<List<NotificationEntity>> = dao.getAllActive()
+    suspend fun getById(id: Long) = dao.getById(id)
+    suspend fun markAsRead(id: Long) = dao.markAsRead(id)
+    suspend fun delete(id: Long) = dao.softDelete(id)
+    suspend fun insert(notification: NotificationEntity) = dao.insert(notification)
 }
 
-class UserProfileRepository(private val userProfileDao: UserProfileDao) {
-    suspend fun getUserProfile(): UserProfile? = userProfileDao.getUser()
-    suspend fun saveUserProfile(profile: UserProfile) = userProfileDao.saveUser(profile)
+class AIConversationRepository(private val dao: AIConversationDao) {
+    val conversation: Flow<List<AIConversation>> = dao.getConversation()
+    suspend fun insert(message: AIConversation) = dao.insert(message)
+}
+
+class BudgetRepository(private val dao: BudgetDao) {
+    val allBudgets: Flow<List<BudgetEntity>> = dao.getAllBudgets()
+    suspend fun insert(budget: BudgetEntity) = dao.insert(budget)
+    suspend fun update(budget: BudgetEntity) = dao.update(budget)
 }
