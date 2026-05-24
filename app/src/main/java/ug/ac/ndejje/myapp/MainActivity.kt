@@ -19,8 +19,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
 class MainActivity : FragmentActivity() {
+    private lateinit var appContainer: AppContainer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        appContainer = AppContainer(this)
+        
         setContent {
             val context = LocalContext.current
             val settingsDataStore = remember { SettingsDataStore(context) }
@@ -32,7 +36,7 @@ class MainActivity : FragmentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(settingsDataStore)
+                    AppNavigation(settingsDataStore, appContainer)
                 }
             }
         }
@@ -40,7 +44,7 @@ class MainActivity : FragmentActivity() {
 }
 
 @Composable
-fun AppNavigation(settingsDataStore: SettingsDataStore) {
+fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContainer) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val authManager = remember { AuthManager(context) }
@@ -127,18 +131,35 @@ fun AppNavigation(settingsDataStore: SettingsDataStore) {
             BudgetManagementScreen(currency = currency, onNavigateBack = { navController.popBackStack() })
         }
         composable("accounts") {
-            AccountsScreen(currency = currency, onNavigateBack = { navController.popBackStack() })
+            AccountsScreen(
+                currency = currency,
+                onNavigateBack = { navController.popBackStack() },
+                accountRepository = appContainer.accountRepository,
+                authManager = authManager
+            )
         }
         composable("profile") {
             ProfileScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToAccounts = { navController.navigate("accounts") }
+                onNavigateToAccounts = { navController.navigate("accounts") },
+                userProfileRepository = appContainer.userProfileRepository,
+                authManager = authManager
             )
         }
         composable("notifications") {
             NotificationScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToSettings = { navController.navigate("settings") }
+                onNavigateToSettings = { navController.navigate("settings") },
+                onNavigateToDetail = { id -> navController.navigate("notification_detail/$id") },
+                notificationRepository = appContainer.notificationRepository
+            )
+        }
+        composable("notification_detail/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull() ?: 0L
+            NotificationDetailScreen(
+                notificationId = id,
+                onNavigateBack = { navController.popBackStack() },
+                notificationRepository = appContainer.notificationRepository
             )
         }
         composable("transactions") {
