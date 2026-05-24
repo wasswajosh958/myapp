@@ -1,6 +1,10 @@
 package ug.ac.ndejje.myapp
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,35 +22,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-enum class AccountType {
-    CHECKING, CASH, CREDIT, SAVINGS
-}
-
-data class Account(
-    val id: Int,
-    val name: String,
-    val type: AccountType,
-    val balance: Double,
-    val detail: String? = null,
-    val alert: String? = null,
-    val lastFour: String? = null
-)
+import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountsScreen(currency: String, onNavigateBack: () -> Unit) {
-    val accounts = remember {
-        mutableStateListOf(
-            Account(1, "Chase Checking", AccountType.CHECKING, 5420.50, lastFour = "1234"),
-            Account(2, "Cash", AccountType.CASH, 340.00),
-            Account(3, "Amex Credit Card", AccountType.CREDIT, -1250.00, detail = "Due: May 5th", alert = "Payment due in 3 days"),
-            Account(4, "Savings Account", AccountType.SAVINGS, 6500.00, detail = "APY: 4.2%")
-        )
-    }
+fun AccountsScreen(
+    currency: String,
+    onNavigateBack: () -> Unit,
+    accountRepository: AccountRepository,
+    authManager: AuthManager
+) {
+    val scope = rememberCoroutineScope()
+    val accounts by accountRepository.allAccounts.collectAsState(initial = emptyList())
+    var editingAccount by remember { mutableStateOf<AccountEntity?>(null) }
+    var showChangePinDialog by remember { mutableStateOf(false) }
 
     val totalAssets = accounts.filter { it.balance > 0 }.sumOf { it.balance }
     val totalLiabilities = accounts.filter { it.balance < 0 }.sumOf { it.balance }.let { Math.abs(it) }
@@ -62,7 +58,12 @@ fun AccountsScreen(currency: String, onNavigateBack: () -> Unit) {
                     }
                 },
                 actions = {
-                    TextButton(onClick = { /* Add Account */ }) {
+                    IconButton(onClick = { showChangePinDialog = true }) {
+                        Icon(Icons.Filled.Lock, contentDescription = "Change PIN")
+                    }
+                    TextButton(onClick = { 
+                        editingAccount = AccountEntity(name = "New Account", type = "CHECKING", balance = 0.0)
+                    }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                             Text("Add")
@@ -108,53 +109,88 @@ fun AccountsScreen(currency: String, onNavigateBack: () -> Unit) {
 
             // Accounts List
             items(accounts) { account ->
-                AccountItem(account, currency)
-            }
-
-            // Total Balance Summary
-            item {
-                Text(
-                    text = "Total balance across all accounts: $currency ${String.format("%,.2f", netWorth)}",
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                AccountItem(
+                    account = account, 
+                    currency = currency,
+                    onEdit = { editingAccount = account }
                 )
-            }
-
-            // AI Suggestion
-            item {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("🤖", fontSize = 24.sp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                "AI: Your credit card payment is due soon. Set up auto-pay?",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            TextButton(onClick = { /* Enable Auto-pay */ }) {
-                                Text("Enable")
-                            }
-                        }
-                    }
-                }
             }
 
             item { Spacer(modifier = Modifier.height(24.dp)) }
         }
     }
+
+    if (editingAccount != null) {
+        EditAccountDialog(
+            account = editingAccount!!,
+            onDismiss = { editingAccount = null },
+            onSave = { updatedAccount ->
+                scope.launch {
+                    accountRepository.insert(updatedAccount)
+                    editingAccount = null
+                }
+            }
+        )
+    }
+
+    if (showChangePinDialog) {
+        ChangePinDialog(
+            authManager = authManager,
+            onDismiss = { showChangePinDialog = false }
+        )
+    }
 }
 
 @Composable
-fun AccountItem(account: Account, currency: String) {
+fun EditAccountDialog(account: AccountEntity, onDismiss: () -> Unit, onSave: (AccountEntity) -> Unit) {
+    var name by remember { mutableStateOf(account.name) }
+    var balance by remember { mutableStateOf(account.balance.toString()) }
+    var type by remember { mutableStateOf(account.type) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (account.id == 0) "Add Account" else "Edit Account") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Account Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = balance,
+                    onValueChange = { balance = it },
+                    label = { Text("Balance") },
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                // Simplified type selection
+                Text("Type: $type (CHECKING, CASH, CREDIT, SAVINGS)")
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSave(account.copy(name = name, balance = balance.toDoubleOrNull() ?: 0.0, type = type))
+            }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun AccountItem(account: AccountEntity, currency: String, onEdit: () -> Unit) {
     val icon: ImageVector = when (account.type) {
-        AccountType.CHECKING, AccountType.CREDIT -> Icons.Filled.CreditCard
-        AccountType.CASH -> Icons.Filled.Payments
-        AccountType.SAVINGS -> Icons.Filled.AccountBalance
+        "CREDIT" -> Icons.Filled.CreditCard
+        "CASH" -> Icons.Filled.Payments
+        "SAVINGS" -> Icons.Filled.AccountBalance
+        else -> Icons.Filled.AccountBalanceWallet
     }
 
     Card(
@@ -175,47 +211,13 @@ fun AccountItem(account: Account, currency: String) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(account.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Text(
-                        text = buildString {
-                            append("$currency ${String.format("%,.2f", account.balance)}")
-                            if (account.lastFour != null) append("  •  Last 4: ${account.lastFour}")
-                            if (account.detail != null) append("  •  ${account.detail}")
-                        },
+                        text = "$currency ${String.format("%,.2f", account.balance)}",
                         fontSize = 14.sp,
                         color = if (account.balance < 0) Color.Red else Color.Unspecified
                     )
                 }
-            }
-
-            if (account.alert != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Warning, contentDescription = null, tint = Color(0xFFFFA000), modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(account.alert, color = Color(0xFFFFA000), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (account.type == AccountType.CREDIT) {
-                    Button(onClick = { /* Pay now */ }, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
-                        Text("Pay now", fontSize = 12.sp)
-                    }
-                } else if (account.type == AccountType.SAVINGS) {
-                    OutlinedButton(onClick = { /* Transfer */ }, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
-                        Text("Transfer", fontSize = 12.sp)
-                    }
-                }
-
-                OutlinedButton(onClick = { /* View Transactions */ }, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
-                    Text("View transactions", fontSize = 12.sp)
-                }
-                
-                if (account.type != AccountType.CREDIT && account.type != AccountType.SAVINGS) {
-                    OutlinedButton(onClick = { /* Edit */ }, contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
-                        Text("Edit", fontSize = 12.sp)
-                    }
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Edit")
                 }
             }
         }
@@ -224,18 +226,54 @@ fun AccountItem(account: Account, currency: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(onNavigateBack: () -> Unit, onNavigateToAccounts: () -> Unit) {
-    var userName by remember { mutableStateOf("Joshua Wasswa") }
-    var userEmail by remember { mutableStateOf("joshua@example.com") }
-    val scrollState = rememberScrollState()
+fun ProfileScreen(
+    onNavigateBack: () -> Unit,
+    onNavigateToAccounts: () -> Unit,
+    userProfileRepository: UserProfileRepository,
+    authManager: AuthManager
+) {
+    val scope = rememberCoroutineScope()
+    val userProfile by userProfileRepository.userProfile.collectAsState(initial = null)
+    val snackbarHostState = remember { SnackbarHostState() }
+    
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var photoUri by remember { mutableStateOf<String?>(null) }
+    var isBiometricEnabled by remember { mutableStateOf(authManager.isBiometricEnabled()) }
+
+    LaunchedEffect(userProfile) {
+        userProfile?.let {
+            name = it.name
+            email = it.email
+            photoUri = it.photoUri
+        }
+    }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        photoUri = uri?.toString()
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Profile") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = {
+                        scope.launch {
+                            val profile = UserProfile(name = name, email = email, photoUri = photoUri)
+                            userProfileRepository.insert(profile)
+                            snackbarHostState.showSnackbar("Profile changes saved successfully")
+                        }
+                    }) {
+                        Text("SAVE", fontWeight = FontWeight.Bold)
                     }
                 }
             )
@@ -245,7 +283,7 @@ fun ProfileScreen(onNavigateBack: () -> Unit, onNavigateToAccounts: () -> Unit) 
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(scrollState)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -253,23 +291,45 @@ fun ProfileScreen(onNavigateBack: () -> Unit, onNavigateToAccounts: () -> Unit) 
             // Profile Photo Section
             Box(contentAlignment = Alignment.BottomEnd) {
                 Surface(
-                    modifier = Modifier.size(100.dp),
+                    modifier = Modifier.size(120.dp),
                     shape = CircleShape,
                     color = MaterialTheme.colorScheme.primaryContainer
                 ) {
-                    Icon(
-                        Icons.Filled.Person, 
-                        contentDescription = null, 
-                        modifier = Modifier.size(60.dp).padding(20.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    if (photoUri != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(photoUri),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            Icons.Filled.Person, 
+                            contentDescription = null, 
+                            modifier = Modifier.size(80.dp).padding(20.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
-                SmallFloatingActionButton(
-                    onClick = { /* Upload photo */ },
-                    shape = CircleShape,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(Icons.Filled.PhotoCamera, contentDescription = "Change photo", modifier = Modifier.size(16.dp))
+                Row {
+                    if (photoUri != null) {
+                        SmallFloatingActionButton(
+                            onClick = { photoUri = null },
+                            shape = CircleShape,
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Remove photo", modifier = Modifier.size(18.dp))
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                    SmallFloatingActionButton(
+                        onClick = { photoPickerLauncher.launch("image/*") },
+                        shape = CircleShape,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(Icons.Filled.PhotoCamera, contentDescription = "Change photo", modifier = Modifier.size(18.dp))
+                    }
                 }
             }
 
@@ -277,15 +337,15 @@ fun ProfileScreen(onNavigateBack: () -> Unit, onNavigateToAccounts: () -> Unit) 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Text("Personal Information", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 OutlinedTextField(
-                    value = userName,
-                    onValueChange = { userName = it },
+                    value = name,
+                    onValueChange = { name = it },
                     label = { Text("Name") },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = { Icon(Icons.Filled.Badge, null) }
                 )
                 OutlinedTextField(
-                    value = userEmail,
-                    onValueChange = { userEmail = it },
+                    value = email,
+                    onValueChange = { email = it },
                     label = { Text("Email") },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = { Icon(Icons.Filled.Email, null) }
@@ -295,14 +355,34 @@ fun ProfileScreen(onNavigateBack: () -> Unit, onNavigateToAccounts: () -> Unit) 
             // Security Section
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Text("Security", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Fingerprint, null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text("Enable Biometric Login")
+                    }
+                    Switch(
+                        checked = isBiometricEnabled,
+                        onCheckedChange = { 
+                            isBiometricEnabled = it
+                            authManager.setBiometricEnabled(it)
+                        }
+                    )
+                }
+
                 Button(
-                    onClick = { /* Change password logic */ },
+                    onClick = { /* show change pin dialog - can reuse from AccountsScreen or common */ },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) {
                     Icon(Icons.Filled.Lock, null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Change Password")
+                    Text("Change PIN")
                 }
             }
 
@@ -317,30 +397,78 @@ fun ProfileScreen(onNavigateBack: () -> Unit, onNavigateToAccounts: () -> Unit) 
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Manage Linked Accounts")
                 }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // AI Suggestion
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("🤖", fontSize = 24.sp)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "AI: Your credit card payment is due soon. Set up auto-pay?",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        TextButton(onClick = { /* Enable Auto-pay */ }) {
-                            Text("Enable")
-                        }
-                    }
+                
+                OutlinedButton(
+                    onClick = { /* show delete account confirmation */ },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Icon(Icons.Filled.DeleteForever, null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Delete Account")
                 }
             }
         }
     }
 }
 
+@Composable
+fun ChangePinDialog(authManager: AuthManager, onDismiss: () -> Unit) {
+    var oldPin by remember { mutableStateOf("") }
+    var newPin by remember { mutableStateOf("") }
+    var confirmPin by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change security PIN") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = oldPin,
+                    onValueChange = { if (it.length <= 4) oldPin = it },
+                    label = { Text("Current PIN") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = newPin,
+                    onValueChange = { if (it.length <= 4) newPin = it },
+                    label = { Text("New 4-digit PIN") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = confirmPin,
+                    onValueChange = { if (it.length <= 4) confirmPin = it },
+                    label = { Text("Confirm New PIN") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (error != null) {
+                    Text(error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                if (newPin != confirmPin) {
+                    error = "New PINs do not match"
+                } else if (newPin.length != 4) {
+                    error = "PIN must be 4 digits"
+                } else if (authManager.changePin(oldPin, newPin)) {
+                    onDismiss()
+                } else {
+                    error = "Incorrect current PIN"
+                }
+            }) {
+                Text("Update")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
