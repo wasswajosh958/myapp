@@ -107,7 +107,13 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToProfile = { navController.navigate("profile") },
-                onNavigateToAppearance = { navController.navigate("appearance") }
+                onNavigateToAppearance = { navController.navigate("appearance") },
+                onRestartOnboarding = {
+                    authManager.setOnboardingCompleted(false)
+                    navController.navigate("onboarding") {
+                        popUpTo("splash") { inclusive = false }
+                    }
+                }
             )
         }
         composable("appearance") {

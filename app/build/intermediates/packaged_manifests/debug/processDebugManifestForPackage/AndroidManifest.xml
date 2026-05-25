@@ -56,6 +56,7 @@
         android:label="FinTrack"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@android:style/Theme.Material.Light" >
         <activity
             android:name="ug.ac.ndejje.myapp.MainActivity"

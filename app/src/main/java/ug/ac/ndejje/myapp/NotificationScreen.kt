@@ -32,8 +32,37 @@ fun NotificationScreen(
     notificationRepository: NotificationRepository,
     userId: Int
 ) {
+    var selectedPeriod by remember { mutableStateOf("All") }
+    val periods = listOf("All", "Today", "This Week", "This Month")
+    
     val notifications by notificationRepository.activeNotifications(userId).collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
+
+    val filteredNotifications = remember(notifications, selectedPeriod) {
+        val now = System.currentTimeMillis()
+        val calendar = Calendar.getInstance()
+        
+        notifications.filter { notif ->
+            when (selectedPeriod) {
+                "Today" -> {
+                    val notifDate = Calendar.getInstance().apply { timeInMillis = notif.createdAt }
+                    val nowDate = Calendar.getInstance().apply { timeInMillis = now }
+                    notifDate.get(Calendar.YEAR) == nowDate.get(Calendar.YEAR) &&
+                    notifDate.get(Calendar.DAY_OF_YEAR) == nowDate.get(Calendar.DAY_OF_YEAR)
+                }
+                "This Week" -> {
+                    notif.createdAt > now - (7 * 24 * 60 * 60 * 1000L)
+                }
+                "This Month" -> {
+                    val notifDate = Calendar.getInstance().apply { timeInMillis = notif.createdAt }
+                    val nowDate = Calendar.getInstance().apply { timeInMillis = now }
+                    notifDate.get(Calendar.YEAR) == nowDate.get(Calendar.YEAR) &&
+                    notifDate.get(Calendar.MONTH) == nowDate.get(Calendar.MONTH)
+                }
+                else -> true
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -59,28 +88,48 @@ fun NotificationScreen(
             )
         }
     ) { innerPadding ->
-        if (notifications.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                Text("No notifications yet", color = Color.Gray)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // Period Filter
+            ScrollableTabRow(
+                selectedTabIndex = periods.indexOf(selectedPeriod),
+                edgePadding = 16.dp,
+                containerColor = Color.Transparent,
+                divider = {}
             ) {
-                items(notifications, key = { it.id }) { notification ->
-                    NotificationItem(
-                        notification = notification,
-                        onClick = { onNavigateToDetail(notification.id) },
-                        onDelete = { 
-                            scope.launch {
-                                notificationRepository.delete(notification.id)
-                            }
-                        }
+                periods.forEach { period ->
+                    Tab(
+                        selected = selectedPeriod == period,
+                        onClick = { selectedPeriod = period },
+                        text = { Text(period) }
                     )
+                }
+            }
+
+            if (filteredNotifications.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No notifications for this period", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredNotifications, key = { it.id }) { notification ->
+                        NotificationItem(
+                            notification = notification,
+                            onClick = { onNavigateToDetail(notification.id) },
+                            onDelete = { 
+                                scope.launch {
+                                    notificationRepository.delete(notification.id)
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -97,6 +146,7 @@ fun NotificationItem(
         "transaction" -> Icons.Filled.Payments to Color.Gray
         "budget_alert" -> Icons.Filled.Warning to Color.Red
         "ai_insight" -> Icons.Filled.AutoAwesome to Color(0xFF2196F3)
+        "user_action" -> Icons.Filled.History to Color.DarkGray
         else -> Icons.Filled.Notifications to Color(0xFFFFA000)
     }
 
@@ -140,7 +190,7 @@ fun NotificationItem(
                     }
                 }
                 Text(
-                    text = if (notification.message.length > 60) notification.message.take(60) + "..." else notification.message,
+                    text = notification.message,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

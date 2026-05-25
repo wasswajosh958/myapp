@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +49,15 @@ fun HomeScreen(
     val userProfile by userProfileRepository.getUserProfile(currentUserId).collectAsState(initial = null)
     val displayName = userProfile?.username ?: username
 
+    val greeting = remember {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        when (hour) {
+            in 0..11 -> "Good morning"
+            in 12..16 -> "Good afternoon"
+            else -> "Good evening"
+        }
+    }
+
     var showAiChat by remember { mutableStateOf(false) }
     var chatMessages by remember { mutableStateOf(listOf<ChatMessage>()) }
     var userQuery by remember { mutableStateOf("") }
@@ -58,6 +68,15 @@ fun HomeScreen(
 
     var showCurrencyDropdown by remember { mutableStateOf(false) }
     val currencies = listOf("Shs", "$", "€", "£")
+
+    val transactions by database.transactionDao().getAllTransactions(currentUserId).collectAsState(initial = emptyList())
+    val accounts by database.accountDao().getAllAccounts(currentUserId).collectAsState(initial = emptyList())
+    val budgets by database.budgetDao().getAllBudgets(currentUserId).collectAsState(initial = emptyList())
+
+    val totalBalance = accounts.sumOf { it.balance }
+    val totalIncome = transactions.filter { !it.isExpense }.sumOf { it.amountValue }
+    val totalExpenses = transactions.filter { it.isExpense }.sumOf { it.amountValue }
+    val totalSavings = totalIncome - totalExpenses
 
     if (showAiChat) {
         ModalBottomSheet(
@@ -116,7 +135,7 @@ fun HomeScreen(
                 title = {
                     Column {
                         Text("FinTrack", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text("Welcome back, $displayName", fontSize = 14.sp, fontWeight = FontWeight.Normal)
+                        Text("$greeting, $displayName", fontSize = 14.sp, fontWeight = FontWeight.Normal)
                     }
                 },
                 actions = {
@@ -195,7 +214,7 @@ fun HomeScreen(
             // 2. Financial Summary Cards
             item {
                 Surface(onClick = onNavigateToAccounts) {
-                    BalanceCard(balance = "$currency 2,450,000")
+                    BalanceCard(balance = "$currency ${String.format("%,.0f", totalBalance)}")
                 }
             }
 
@@ -204,9 +223,9 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryMiniCard("Income", "$currency 4.0M", Color(0xFF4CAF50), Modifier.weight(1f))
-                    SummaryMiniCard("Expenses", "$currency 1.5M", Color(0xFFF44336), Modifier.weight(1f))
-                    SummaryMiniCard("Savings", "$currency 900K", Color(0xFF2196F3), Modifier.weight(1f))
+                    SummaryMiniCard("Income", "$currency ${String.format("%,.1f", totalIncome / 1000000.0)}M", Color(0xFF4CAF50), Modifier.weight(1f))
+                    SummaryMiniCard("Expenses", "$currency ${String.format("%,.1f", totalExpenses / 1000000.0)}M", Color(0xFFF44336), Modifier.weight(1f))
+                    SummaryMiniCard("Savings", "$currency ${String.format("%,.1f", totalSavings / 1000.0)}K", Color(0xFF2196F3), Modifier.weight(1f))
                 }
             }
 
@@ -220,8 +239,14 @@ fun HomeScreen(
             item {
                 SectionHeader("Recent Transactions", viewAll = true, onViewAll = onNavigateToTransactions)
             }
-            items(getMockTransactions(currentUserId)) { transaction ->
-                TransactionItem(transaction, currency)
+            if (transactions.isEmpty()) {
+                item {
+                    Text("No transactions yet. Start adding!", color = Color.Gray, modifier = Modifier.padding(vertical = 16.dp))
+                }
+            } else {
+                items(transactions.take(5)) { transaction ->
+                    TransactionItem(transaction, currency)
+                }
             }
 
             // 5. Savings Goals
@@ -229,15 +254,24 @@ fun HomeScreen(
                 SectionHeader("Savings Goals")
             }
             item {
-                SavingsGoalItem("Laptop Fund", 0.7f, "UGX 300,000 remaining")
+                SavingsGoalItem("Laptop Fund", 0.7f, "Shs 300,000 remaining")
             }
 
             // 6. Budget Alerts
             item {
                 SectionHeader("Budgets", viewAll = true, onViewAll = onNavigateToBudgets)
             }
-            item {
-                AlertCard("You have spent 85% of your food budget.", onClick = onNavigateToBudgets)
+            if (budgets.isEmpty()) {
+                item {
+                    Text("No budgets set.", color = Color.Gray)
+                }
+            } else {
+                items(budgets.take(2)) { budget ->
+                    val progress = if (budget.limit > 0) (budget.spent / budget.limit) else 0.0
+                    if (progress >= 0.8) {
+                        AlertCard("${budget.category} budget is ${(progress * 100).toInt()}% used.", onClick = onNavigateToBudgets)
+                    }
+                }
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -400,10 +434,3 @@ fun AlertCard(message: String, onClick: () -> Unit = {}) {
         }
     }
 }
-
-fun getMockTransactions(userId: Int) = listOf(
-    Transaction(1, userId, "Airtime", "Utilities", 10000.0, "May 22", "2:30 PM", true),
-    Transaction(2, userId, "Salary", "Income", 2000000.0, "May 21", "9:00 AM", false),
-    Transaction(3, userId, "Lunch", "Food", 15000.0, "May 20", "1:30 PM", true),
-    Transaction(4, userId, "Fuel", "Transport", 50000.0, "May 19", "8:15 AM", true)
-)

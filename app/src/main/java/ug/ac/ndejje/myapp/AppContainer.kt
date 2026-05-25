@@ -11,10 +11,19 @@ class AppContainer(context: Context) {
     private val passphrase = "secure_password".toByteArray()
     val database = AppDatabase.getInstance(context, passphrase)
 
-    val transactionRepository: TransactionRepository = TransactionRepository(database.transactionDao())
+    val transactionRepository: TransactionRepository = TransactionRepository(
+        database.transactionDao(),
+        database.notificationDao()
+    )
     val categoryRepository: CategoryRepository = CategoryRepository(database.categoryDao())
-    val accountRepository: AccountRepository = AccountRepository(database.accountDao())
-    val budgetRepository: BudgetRepository = BudgetRepository(database.budgetDao())
+    val accountRepository: AccountRepository = AccountRepository(
+        database.accountDao(),
+        database.notificationDao()
+    )
+    val budgetRepository: BudgetRepository = BudgetRepository(
+        database.budgetDao(),
+        database.notificationDao()
+    )
     val userProfileRepository: UserProfileRepository = UserProfileRepository(database.userProfileDao())
     val notificationRepository: NotificationRepository = NotificationRepository(database.notificationDao())
     val aiConversationRepository: AIConversationRepository = AIConversationRepository(database.aiConversationDao())

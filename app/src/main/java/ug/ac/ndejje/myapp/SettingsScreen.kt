@@ -20,13 +20,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToProfile: () -> Unit,
-    onNavigateToAppearance: () -> Unit
+    onNavigateToAppearance: () -> Unit,
+    onRestartOnboarding: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -83,6 +85,12 @@ fun SettingsScreen(
             SettingsSection(title = "About") {
                 SettingsItem(icon = Icons.Filled.Info, title = "Version", subtitle = "1.0.0")
                 SettingsItem(icon = Icons.Filled.Policy, title = "Privacy Policy")
+                SettingsItem(
+                    icon = Icons.Filled.RestartAlt,
+                    title = "Run Onboarding",
+                    subtitle = "Review app features and setup",
+                    onClick = onRestartOnboarding
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -196,8 +204,7 @@ fun SettingsItem(icon: ImageVector, title: String, subtitle: String? = null, onC
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
