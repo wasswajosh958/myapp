@@ -37,6 +37,8 @@ public final class AppDatabase_Impl extends AppDatabase {
 
   private volatile RecurringTransactionDao _recurringTransactionDao;
 
+  private volatile UtilityDao _utilityDao;
+
   private volatile AIConversationDao _aIConversationDao;
 
   private volatile UserProfileDao _userProfileDao;
@@ -48,7 +50,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(5) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `title` TEXT NOT NULL, `category` TEXT NOT NULL, `amountValue` REAL NOT NULL, `date` TEXT NOT NULL, `time` TEXT NOT NULL, `isExpense` INTEGER NOT NULL, `isPending` INTEGER NOT NULL, `accountId` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
@@ -62,8 +64,9 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `user_profile` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, `email` TEXT NOT NULL, `currency` TEXT NOT NULL, `photoUri` TEXT, `passwordHash` TEXT, `pinHash` TEXT)");
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_user_profile_username` ON `user_profile` (`username`)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `notifications` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `type` TEXT NOT NULL, `title` TEXT NOT NULL, `message` TEXT NOT NULL, `relatedId` INTEGER, `isRead` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `utilities` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `userId` INTEGER NOT NULL, `name` TEXT NOT NULL, `provider` TEXT NOT NULL, `accountNumber` TEXT, `defaultAmount` REAL NOT NULL, `categoryId` INTEGER NOT NULL, `modeId` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd5fc44bd1b291ad76451faf426770507')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f3c1f51a274a6b9583df89d6ff36a24a')");
       }
 
       @Override
@@ -78,6 +81,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("DROP TABLE IF EXISTS `analytics_events`");
         db.execSQL("DROP TABLE IF EXISTS `user_profile`");
         db.execSQL("DROP TABLE IF EXISTS `notifications`");
+        db.execSQL("DROP TABLE IF EXISTS `utilities`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -293,9 +297,27 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoNotifications + "\n"
                   + " Found:\n" + _existingNotifications);
         }
+        final HashMap<String, TableInfo.Column> _columnsUtilities = new HashMap<String, TableInfo.Column>(8);
+        _columnsUtilities.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUtilities.put("userId", new TableInfo.Column("userId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUtilities.put("name", new TableInfo.Column("name", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUtilities.put("provider", new TableInfo.Column("provider", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUtilities.put("accountNumber", new TableInfo.Column("accountNumber", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUtilities.put("defaultAmount", new TableInfo.Column("defaultAmount", "REAL", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUtilities.put("categoryId", new TableInfo.Column("categoryId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsUtilities.put("modeId", new TableInfo.Column("modeId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysUtilities = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesUtilities = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoUtilities = new TableInfo("utilities", _columnsUtilities, _foreignKeysUtilities, _indicesUtilities);
+        final TableInfo _existingUtilities = TableInfo.read(db, "utilities");
+        if (!_infoUtilities.equals(_existingUtilities)) {
+          return new RoomOpenHelper.ValidationResult(false, "utilities(ug.ac.ndejje.myapp.UtilityEntity).\n"
+                  + " Expected:\n" + _infoUtilities + "\n"
+                  + " Found:\n" + _existingUtilities);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "d5fc44bd1b291ad76451faf426770507", "f4ebda12880e4dbf029925945e49400a");
+    }, "f3c1f51a274a6b9583df89d6ff36a24a", "8c399c2c7f36dd4df0bcd4433700d89e");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -306,7 +328,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "transactions","categories","accounts","budgets","recurring_transactions","ai_conversations","crash_logs","analytics_events","user_profile","notifications");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "transactions","categories","accounts","budgets","recurring_transactions","ai_conversations","crash_logs","analytics_events","user_profile","notifications","utilities");
   }
 
   @Override
@@ -325,6 +347,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       _db.execSQL("DELETE FROM `analytics_events`");
       _db.execSQL("DELETE FROM `user_profile`");
       _db.execSQL("DELETE FROM `notifications`");
+      _db.execSQL("DELETE FROM `utilities`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
@@ -344,6 +367,7 @@ public final class AppDatabase_Impl extends AppDatabase {
     _typeConvertersMap.put(AccountDao.class, AccountDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(BudgetDao.class, BudgetDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(RecurringTransactionDao.class, RecurringTransactionDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(UtilityDao.class, UtilityDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(AIConversationDao.class, AIConversationDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(UserProfileDao.class, UserProfileDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(NotificationDao.class, NotificationDao_Impl.getRequiredConverters());
@@ -432,6 +456,20 @@ public final class AppDatabase_Impl extends AppDatabase {
           _recurringTransactionDao = new RecurringTransactionDao_Impl(this);
         }
         return _recurringTransactionDao;
+      }
+    }
+  }
+
+  @Override
+  public UtilityDao utilityDao() {
+    if (_utilityDao != null) {
+      return _utilityDao;
+    } else {
+      synchronized(this) {
+        if(_utilityDao == null) {
+          _utilityDao = new UtilityDao_Impl(this);
+        }
+        return _utilityDao;
       }
     }
   }

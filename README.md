@@ -4,6 +4,7 @@ FinTrack is a production-ready financial management application built with moder
 
 ## Key Features
 
+- **Dynamic Savings Goals**: Create and track multiple savings goals with progress indicators.
 - **AI Hybrid Assistant**: Integrated with MediaPipe GenAI for local insights and cloud fallback for advanced financial planning.
 - **Secure Storage**: Uses Room database with SQLCipher for full-disk encryption.
 - **Biometric Authentication**: Login using fingerprint or face recognition (via Camera/BiometricPrompt).
@@ -14,6 +15,15 @@ FinTrack is a production-ready financial management application built with moder
 - **Home Widget**: Glance-based home screen widget for real-time balance tracking.
 - **Customizable UI**: Jetpack Compose-based Material 3 theme with multiple accent colors and dark/light modes.
 - **Voice Interaction**: Text-to-Speech (UK English) and Speech-to-Text for a hands-free experience.
+
+## Recent Updates
+
+- **Project Reorganization**: Refactored the codebase into a modular package structure:
+    - `screens/`: All UI components and screen Composables.
+    - `resources/`: Data entities, DAOs, Repositories, and Database configuration.
+    - `util/`: Helper classes and managers (Auth, Backup, AI, etc.).
+    - `theme/`: Material 3 theme, color schemes, and typography.
+- **Dynamic Savings Goals**: Removed hardcoded goals and implemented a full CRUD system for user-defined savings goals with real-time progress tracking.
 
 ## Architecture
 

@@ -3,6 +3,8 @@ package ug.ac.ndejje.myapp
 import android.app.Application
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import ug.ac.ndejje.myapp.resources.*
+import ug.ac.ndejje.myapp.util.*
 
 class FinTrackApp : Application() {
     lateinit var container: AppContainer

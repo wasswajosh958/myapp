@@ -12,6 +12,10 @@ import androidx.navigation.compose.*
 import kotlinx.coroutines.launch
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import ug.ac.ndejje.myapp.theme.*
+import ug.ac.ndejje.myapp.screens.*
+import ug.ac.ndejje.myapp.util.*
+import ug.ac.ndejje.myapp.resources.*
 
 class MainActivity : FragmentActivity() {
     private lateinit var appContainer: AppContainer
@@ -79,6 +83,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             RegisterScreen(
                 onNavigateBack = { navController.popBackStack() },
                 userProfileRepository = appContainer.userProfileRepository,
+                categoryRepository = appContainer.categoryRepository,
+                accountRepository = appContainer.accountRepository,
                 authManager = authManager
             )
         }
@@ -92,7 +98,6 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 onNavigateToTransactions = { navController.navigate("transactions") },
                 onNavigateToAddTransaction = { navController.navigate("add_transaction") },
                 onNavigateToReports = { navController.navigate("reports") },
-                onNavigateToBudgets = { navController.navigate("budgets") },
                 onNavigateToAccounts = { navController.navigate("accounts") },
                 onNavigateToProfile = { navController.navigate("profile") },
                 onNavigateToSettings = { navController.navigate("settings") },
@@ -100,10 +105,14 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 onCurrencyChange = { },
                 userProfileRepository = appContainer.userProfileRepository,
                 database = appContainer.database,
-                authManager = authManager
+                authManager = authManager,
+                savingsGoalRepository = appContainer.savingsGoalRepository
             )
         }
         composable("settings") {
+            val scope = rememberCoroutineScope()
+            val snackbarHostState = remember { SnackbarHostState() }
+            
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToProfile = { navController.navigate("profile") },
@@ -112,6 +121,16 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                     authManager.setOnboardingCompleted(false)
                     navController.navigate("onboarding") {
                         popUpTo("splash") { inclusive = false }
+                    }
+                },
+                onSaveAllData = {
+                    scope.launch {
+                        val backupManager = BackupManager(context, appContainer.database, currentUserId)
+                        val file = backupManager.exportData()
+                        if (file != null) {
+                            // In a real app, you might show a snackbar or open a share sheet
+                            println("Backup saved to: ${file.absolutePath}")
+                        }
                     }
                 }
             )
@@ -131,9 +150,6 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
         }
         composable("reports") {
             ReportsScreen(currency = currency, onNavigateBack = { navController.popBackStack() })
-        }
-        composable("budgets") {
-            BudgetManagementScreen(currency = currency, onNavigateBack = { navController.popBackStack() })
         }
         composable("accounts") {
             AccountsScreen(
@@ -173,11 +189,20 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 currency = currency,
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToAddTransaction = { navController.navigate("add_transaction") },
+                transactionRepository = appContainer.transactionRepository,
                 userId = currentUserId
             )
         }
         composable("add_transaction") {
-            AddEditTransactionScreen(currency = currency, onNavigateBack = { navController.popBackStack() })
+            AddEditTransactionScreen(
+                currency = currency,
+                onNavigateBack = { navController.popBackStack() },
+                transactionRepository = appContainer.transactionRepository,
+                categoryRepository = appContainer.categoryRepository,
+                accountRepository = appContainer.accountRepository,
+                utilityRepository = appContainer.utilityRepository,
+                authManager = authManager
+            )
         }
     }
 }
