@@ -8,7 +8,7 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE userId = :userId ORDER BY date DESC, time DESC")
     fun getAllTransactions(userId: Int): Flow<List<Transaction>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(transaction: Transaction)
 
     @Delete
@@ -22,6 +22,9 @@ interface TransactionDao {
 interface AccountDao {
     @Query("SELECT * FROM accounts WHERE userId = :userId")
     fun getAllAccounts(userId: Int): Flow<List<AccountEntity>>
+
+    @Query("SELECT * FROM accounts WHERE id = :id")
+    suspend fun getAccountById(id: Int): AccountEntity?
 
     @Insert
     suspend fun insert(account: AccountEntity)

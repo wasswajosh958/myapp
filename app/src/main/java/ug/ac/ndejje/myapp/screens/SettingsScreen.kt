@@ -34,7 +34,8 @@ fun SettingsScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToAppearance: () -> Unit,
     onRestartOnboarding: () -> Unit,
-    onSaveAllData: () -> Unit
+    onSaveAllData: () -> Unit,
+    onRecalculateBalances: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -74,6 +75,12 @@ fun SettingsScreen(
                     title = "Save All Data",
                     subtitle = "Manually backup all your records",
                     onClick = onSaveAllData
+                )
+                SettingsItem(
+                    icon = Icons.Filled.Refresh,
+                    title = "Recalculate Balances",
+                    subtitle = "Fix account totals from history",
+                    onClick = onRecalculateBalances
                 )
                 SettingsItem(icon = Icons.Filled.Download, title = "Export my data (GDPR)")
             }

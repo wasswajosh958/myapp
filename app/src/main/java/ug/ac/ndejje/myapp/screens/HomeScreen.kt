@@ -39,6 +39,7 @@ fun HomeScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToSavingsGoals: () -> Unit,
     onCurrencyChange: (String) -> Unit,
     userProfileRepository: UserProfileRepository,
     database: AppDatabase,
@@ -54,7 +55,6 @@ fun HomeScreen(
     val displayName = userProfile?.username ?: username
 
     val savingsGoals by savingsGoalRepository.allGoals(currentUserId).collectAsState(initial = emptyList())
-    var showAddGoalDialog by remember { mutableStateOf(false) }
 
     val greeting = remember {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
@@ -78,6 +78,19 @@ fun HomeScreen(
 
     val transactions by database.transactionDao().getAllTransactions(currentUserId).collectAsState(initial = emptyList())
     val accounts by database.accountDao().getAllAccounts(currentUserId).collectAsState(initial = emptyList())
+
+    // Automatic balance fix on first load
+    LaunchedEffect(accounts) {
+        if (accounts.isEmpty() && currentUserId != -1) {
+            // Create a default account if none exists
+            database.accountDao().insert(
+                AccountEntity(userId = currentUserId, name = "Cash", type = "CASH", balance = 0.0)
+            )
+        } else if (accounts.isNotEmpty()) {
+            val accountRepo = AccountRepository(database.accountDao(), database.notificationDao())
+            accountRepo.recalculateBalances(currentUserId, database.transactionDao())
+        }
+    }
 
     val totalBalance = accounts.sumOf { it.balance }
     val totalIncome = transactions.filter { !it.isExpense }.sumOf { it.amountValue }
@@ -271,55 +284,43 @@ fun HomeScreen(
 
             // 5. Savings Goals
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SectionHeader("Savings Goals")
-                    IconButton(onClick = { showAddGoalDialog = true }) {
-                        Icon(Icons.Filled.Add, contentDescription = "Add Goal")
-                    }
-                }
+                SectionHeader(
+                    "Savings Goals", 
+                    viewAll = true, 
+                    onViewAll = onNavigateToSavingsGoals
+                )
             }
             if (savingsGoals.isEmpty()) {
                 item {
                     Text("No savings goals yet.", color = Color.Gray, modifier = Modifier.padding(vertical = 16.dp))
                 }
             } else {
-                items(savingsGoals) { goal ->
+                items(savingsGoals.take(3)) { goal ->
                     val progress = if (goal.targetAmount > 0) (goal.currentAmount / goal.targetAmount).toFloat() else 0f
                     val remaining = goal.targetAmount - goal.currentAmount
-                    SavingsGoalItem(
-                        name = goal.name,
-                        progress = progress,
-                        remaining = "$currency ${String.format("%,.0f", remaining)} remaining"
-                    )
+                    
+                    // Simple card for home screen
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onNavigateToSavingsGoals
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(goal.name, fontWeight = FontWeight.Bold)
+                                Text("${(progress * 100).toInt()}%")
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            LinearProgressIndicator(
+                                progress = { progress },
+                                modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
-        }
-
-        if (showAddGoalDialog) {
-            AddGoalDialog(
-                onDismiss = { showAddGoalDialog = false },
-                onConfirm = { name, target ->
-                    scope.launch {
-                        savingsGoalRepository.insert(
-                            SavingsGoal(
-                                userId = currentUserId,
-                                name = name,
-                                targetAmount = target,
-                                currentAmount = 0.0,
-                                currency = currency
-                            )
-                        )
-                        showAddGoalDialog = false
-                    }
-                }
-            )
         }
     }
 }
@@ -455,25 +456,6 @@ fun TransactionItem(transaction: Transaction, currency: String) {
 }
 
 @Composable
-fun SavingsGoalItem(name: String, progress: Float, remaining: String) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(name, fontWeight = FontWeight.Bold)
-                Text("${(progress * 100).toInt()}%")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(remaining, fontSize = 12.sp, color = Color.Gray)
-        }
-    }
-}
-
-@Composable
 fun AlertCard(message: String, onClick: () -> Unit = {}) {
     Card(
         onClick = onClick,
@@ -489,48 +471,4 @@ fun AlertCard(message: String, onClick: () -> Unit = {}) {
     }
 }
 
-@Composable
-fun AddGoalDialog(onDismiss: () -> Unit, onConfirm: (String, Double) -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var targetAmount by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("New Savings Goal") },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Goal Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = targetAmount,
-                    onValueChange = { targetAmount = it },
-                    label = { Text("Target Amount") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    val amount = targetAmount.toDoubleOrNull() ?: 0.0
-                    if (name.isNotBlank() && amount > 0) {
-                        onConfirm(name, amount)
-                    }
-                }
-            ) {
-                Text("Add")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
 

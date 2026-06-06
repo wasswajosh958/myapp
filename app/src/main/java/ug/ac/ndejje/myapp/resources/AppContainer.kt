@@ -15,6 +15,7 @@ class AppContainer(context: Context) {
 
     val transactionRepository: TransactionRepository = TransactionRepository(
         database.transactionDao(),
+        database.accountDao(),
         database.notificationDao()
     )
     val categoryRepository: CategoryRepository = CategoryRepository(database.categoryDao())
@@ -32,6 +33,8 @@ class AppContainer(context: Context) {
     val utilityRepository: UtilityRepository = UtilityRepository(database.utilityDao())
     val savingsGoalRepository: SavingsGoalRepository = SavingsGoalRepository(
         database.savingsGoalDao(),
+        database.accountDao(),
+        database.transactionDao(),
         database.notificationDao()
     )
 }

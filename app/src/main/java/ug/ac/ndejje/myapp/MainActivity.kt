@@ -102,11 +102,20 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 onNavigateToProfile = { navController.navigate("profile") },
                 onNavigateToSettings = { navController.navigate("settings") },
                 onNavigateToNotifications = { navController.navigate("notifications") },
+                onNavigateToSavingsGoals = { navController.navigate("savings_goals") },
                 onCurrencyChange = { },
                 userProfileRepository = appContainer.userProfileRepository,
                 database = appContainer.database,
                 authManager = authManager,
                 savingsGoalRepository = appContainer.savingsGoalRepository
+            )
+        }
+        composable("savings_goals") {
+            SavingsGoalScreen(
+                currency = currency,
+                currentUserId = currentUserId,
+                savingsGoalRepository = appContainer.savingsGoalRepository,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable("settings") {
@@ -131,6 +140,15 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                             // In a real app, you might show a snackbar or open a share sheet
                             println("Backup saved to: ${file.absolutePath}")
                         }
+                    }
+                },
+                onRecalculateBalances = {
+                    scope.launch {
+                        appContainer.accountRepository.recalculateBalances(
+                            currentUserId,
+                            appContainer.database.transactionDao()
+                        )
+                        snackbarHostState.showSnackbar("Balances recalculated successfully")
                     }
                 }
             )

@@ -1,16 +1,31 @@
 package ug.ac.ndejje.myapp.resources
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.util.Date
 
 class TransactionRepository(
     private val transactionDao: TransactionDao,
+    private val accountDao: AccountDao,
     private val notificationDao: NotificationDao
 ) {
     fun getAllTransactions(userId: Int): Flow<List<Transaction>> = transactionDao.getAllTransactions(userId)
 
     suspend fun insert(transaction: Transaction) {
         transactionDao.insert(transaction)
+        
+        // Update account balance
+        if (transaction.accountId != 0) {
+            accountDao.getAccountById(transaction.accountId)?.let { account ->
+                val newBalance = if (transaction.isExpense) {
+                    account.balance - transaction.amountValue
+                } else {
+                    account.balance + transaction.amountValue
+                }
+                accountDao.update(account.copy(balance = newBalance))
+            }
+        }
+
         notificationDao.insert(
             NotificationEntity(
                 userId = transaction.userId,
@@ -24,6 +39,19 @@ class TransactionRepository(
 
     suspend fun delete(transaction: Transaction) {
         transactionDao.delete(transaction)
+        
+        // Reverse account balance update
+        if (transaction.accountId != 0) {
+            accountDao.getAccountById(transaction.accountId)?.let { account ->
+                val newBalance = if (transaction.isExpense) {
+                    account.balance + transaction.amountValue
+                } else {
+                    account.balance - transaction.amountValue
+                }
+                accountDao.update(account.copy(balance = newBalance))
+            }
+        }
+
         notificationDao.insert(
             NotificationEntity(
                 userId = transaction.userId,
@@ -79,6 +107,41 @@ class AccountRepository(
                 relatedId = account.id
             )
         )
+    }
+
+    suspend fun recalculateBalances(userId: Int, transactionDao: TransactionDao) {
+        val accounts = accountDao.getAllAccounts(userId).first()
+        if (accounts.isEmpty()) return
+
+        val transactions = transactionDao.getAllTransactions(userId).first()
+        val firstAccountId = accounts.first().id
+        
+        // Use a map to track running totals for each account
+        val updatedBalances = mutableMapOf<Int, Double>()
+        accounts.forEach { updatedBalances[it.id] = 0.0 }
+
+        // Apply all transactions to the map
+        transactions.forEach { tx ->
+            // If accountId is 0 (orphaned), assign it to the first account
+            val targetId = if (tx.accountId == 0) firstAccountId else tx.accountId
+            
+            // If for some reason we assign to an account that doesn't exist in the user's list
+            if (updatedBalances.containsKey(targetId)) {
+                val current = updatedBalances[targetId] ?: 0.0
+                updatedBalances[targetId] = if (tx.isExpense) current - tx.amountValue else current + tx.amountValue
+                
+                // Also update the transaction in DB if it was orphaned
+                if (tx.accountId == 0) {
+                    transactionDao.insert(tx.copy(accountId = firstAccountId))
+                }
+            }
+        }
+
+        // Update the database for each account
+        accounts.forEach { account ->
+            val newBalance = updatedBalances[account.id] ?: 0.0
+            accountDao.update(account.copy(balance = newBalance))
+        }
     }
 }
 
@@ -149,6 +212,8 @@ class BudgetRepository(
 
 class SavingsGoalRepository(
     private val goalDao: SavingsGoalDao,
+    private val accountDao: AccountDao,
+    private val transactionDao: TransactionDao,
     private val notificationDao: NotificationDao
 ) {
     fun allGoals(userId: Int): Flow<List<SavingsGoal>> = goalDao.getAllGoals(userId)
@@ -161,6 +226,46 @@ class SavingsGoalRepository(
                 type = "user_action",
                 title = "Savings Goal Added",
                 message = "New savings goal '${goal.name}' added.",
+                relatedId = goal.id
+            )
+        )
+    }
+
+    suspend fun contribute(goal: SavingsGoal, amount: Double) {
+        // 1. Update goal amount
+        val updatedGoal = goal.copy(currentAmount = (goal.currentAmount + amount).coerceAtMost(goal.targetAmount))
+        goalDao.update(updatedGoal)
+
+        // 2. Find an account to deduct from (default to first one)
+        val accounts = accountDao.getAllAccounts(goal.userId).first()
+        if (accounts.isNotEmpty()) {
+            val account = accounts.first()
+            val newBalance = account.balance - amount
+            accountDao.update(account.copy(balance = newBalance))
+
+            // 3. Create a transaction record for tracking
+            val now = java.util.Calendar.getInstance()
+            val dateStr = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(now.time)
+            val timeStr = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(now.time)
+
+            transactionDao.insert(Transaction(
+                userId = goal.userId,
+                title = "Savings: ${goal.name}",
+                category = "Savings",
+                amountValue = amount,
+                date = dateStr,
+                time = timeStr,
+                isExpense = true, 
+                accountId = account.id
+            ))
+        }
+
+        notificationDao.insert(
+            NotificationEntity(
+                userId = goal.userId,
+                type = "user_action",
+                title = "Goal Contribution",
+                message = "Added Shs ${amount} to goal '${goal.name}'.",
                 relatedId = goal.id
             )
         )
