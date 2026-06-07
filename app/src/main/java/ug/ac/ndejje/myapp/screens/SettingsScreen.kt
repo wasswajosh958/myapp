@@ -35,8 +35,12 @@ fun SettingsScreen(
     onNavigateToAppearance: () -> Unit,
     onRestartOnboarding: () -> Unit,
     onSaveAllData: () -> Unit,
-    onRecalculateBalances: () -> Unit
+    onRecalculateBalances: () -> Unit,
+    onSaveGeminiKey: (String) -> Unit
 ) {
+    var showGeminiDialog by remember { mutableStateOf(false) }
+    var geminiKeyInput by remember { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,6 +91,12 @@ fun SettingsScreen(
 
             SettingsSection(title = "AI Assistant Settings") {
                 SettingsToggleItem(icon = Icons.Filled.AutoAwesome, title = "Enable AI", initialValue = true)
+                SettingsItem(
+                    icon = Icons.Filled.VpnKey,
+                    title = "Personal Gemini API Key",
+                    subtitle = "Optional: Use your own key for higher limits",
+                    onClick = { showGeminiDialog = true }
+                )
                 SettingsToggleItem(icon = Icons.Filled.RecordVoiceOver, title = "Voice responses", initialValue = true)
                 SettingsItem(icon = Icons.Filled.FileDownload, title = "Download offline model", subtitle = "2.3 GB")
             }
@@ -114,6 +124,38 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+
+    if (showGeminiDialog) {
+        AlertDialog(
+            onDismissRequest = { showGeminiDialog = false },
+            title = { Text("Gemini API Key") },
+            text = {
+                Column {
+                    Text("Enter your Google Gemini API key to enable cloud fallback for complex financial advice.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = geminiKeyInput,
+                        onValueChange = { geminiKeyInput = it },
+                        label = { Text("API Key") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    onSaveGeminiKey(geminiKeyInput)
+                    showGeminiDialog = false
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showGeminiDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 

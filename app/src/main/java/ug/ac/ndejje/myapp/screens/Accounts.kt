@@ -41,8 +41,11 @@ fun AccountsScreen(
     currency: String,
     onNavigateBack: () -> Unit,
     accountRepository: AccountRepository,
-    authManager: AuthManager
+    authManager: AuthManager,
+    database: AppDatabase
 ) {
+    val context = LocalContext.current
+    val activity = context.findActivity()
     val scope = rememberCoroutineScope()
     val currentUserId = authManager.getCurrentUserId()
     val accounts by accountRepository.getAllAccounts(currentUserId).collectAsState(initial = emptyList())
@@ -65,6 +68,14 @@ fun AccountsScreen(
                 actions = {
                     IconButton(onClick = { showChangePinDialog = true }) {
                         Icon(Icons.Filled.Lock, contentDescription = "Change PIN")
+                    }
+                    IconButton(onClick = {
+                        val plaidManager = PlaidManager(context, database)
+                        scope.launch {
+                            plaidManager.startPlaidLink(activity as androidx.activity.ComponentActivity, currentUserId)
+                        }
+                    }) {
+                        Icon(Icons.Filled.AccountBalance, contentDescription = "Connect Bank")
                     }
                     TextButton(onClick = { 
                         editingAccount = AccountEntity(userId = currentUserId, name = "New Account", type = "CHECKING", balance = 0.0)

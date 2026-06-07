@@ -4,7 +4,7 @@
             "outputFile": "ug.ac.ndejje.myapp-mergeDebugResources-82:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\wassw\\.gradle\\caches\\9.0.0\\transforms\\e72eb2028c5c98540d3a46eb003e92fc\\transformed\\core-1.12.0\\res\\values-v16\\values-v16.xml",
+                    "source": "C:\\Users\\wassw\\.gradle\\caches\\9.0.0\\transforms\\9f520d4b5c638fcb0f7c29db47672997\\transformed\\core-1.12.0\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\wassw\\.gradle\\caches\\9.0.0\\transforms\\20515cbc7c39da53b31aaecf117fd09f\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
+                    "source": "C:\\Users\\wassw\\.gradle\\caches\\9.0.0\\transforms\\e9a9384988c90b4aad7e0ad7031ac68e\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

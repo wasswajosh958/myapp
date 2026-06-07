@@ -136,6 +136,15 @@ data class ChatMessage(
     val isUser: Boolean
 )
 
+data class AppDataBackup(
+    val transactions: List<Transaction>,
+    val accounts: List<AccountEntity>,
+    val budgets: List<BudgetEntity>,
+    val categories: List<Category>,
+    val utilities: List<UtilityEntity>,
+    val userProfile: UserProfile?
+)
+
 @Entity(tableName = "savings_goals")
 data class SavingsGoal(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,

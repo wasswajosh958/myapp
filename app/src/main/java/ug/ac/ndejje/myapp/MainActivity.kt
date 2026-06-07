@@ -27,8 +27,8 @@ class MainActivity : FragmentActivity() {
         setContent {
             val context = LocalContext.current
             val settingsDataStore = remember { SettingsDataStore(context) }
-            val themeModeState = settingsDataStore.themeModeFlow.collectAsState<ThemeMode, ThemeMode>(initial = ThemeMode.SYSTEM)
-            val accentColorState = settingsDataStore.accentColorFlow.collectAsState<AccentColor, AccentColor>(initial = AccentColor.GREEN)
+            val themeModeState = settingsDataStore.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
+            val accentColorState = settingsDataStore.accentColorFlow.collectAsState(initial = AccentColor.GREEN)
 
             FinTrackTheme(themeMode = themeModeState.value, accentColor = accentColorState.value) {
                 Surface(
@@ -107,7 +107,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 userProfileRepository = appContainer.userProfileRepository,
                 database = appContainer.database,
                 authManager = authManager,
-                savingsGoalRepository = appContainer.savingsGoalRepository
+                savingsGoalRepository = appContainer.savingsGoalRepository,
+                settingsDataStore = settingsDataStore
             )
         }
         composable("savings_goals") {
@@ -135,11 +136,18 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
                 onSaveAllData = {
                     scope.launch {
                         val backupManager = BackupManager(context, appContainer.database, currentUserId)
-                        val file = backupManager.exportData()
-                        if (file != null) {
-                            // In a real app, you might show a snackbar or open a share sheet
-                            println("Backup saved to: ${file.absolutePath}")
+                        val success = backupManager.exportAndUploadData()
+                        if (success) {
+                            snackbarHostState.showSnackbar("Data backed up to cloud successfully")
+                        } else {
+                            snackbarHostState.showSnackbar("Backup failed. Check network or local storage.")
                         }
+                    }
+                },
+                onSaveGeminiKey = { key: String ->
+                    scope.launch {
+                        settingsDataStore.setGeminiApiKey(key)
+                        snackbarHostState.showSnackbar("Gemini API Key updated")
                     }
                 },
                 onRecalculateBalances = {
@@ -154,8 +162,8 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             )
         }
         composable("appearance") {
-            val themeModeState = settingsDataStore.themeModeFlow.collectAsState<ThemeMode, ThemeMode>(initial = ThemeMode.SYSTEM)
-            val accentColorState = settingsDataStore.accentColorFlow.collectAsState<AccentColor, AccentColor>(initial = AccentColor.GREEN)
+            val themeModeState = settingsDataStore.themeModeFlow.collectAsState(initial = ThemeMode.SYSTEM)
+            val accentColorState = settingsDataStore.accentColorFlow.collectAsState(initial = AccentColor.GREEN)
             val scope = rememberCoroutineScope()
 
             AppearanceScreen(
@@ -167,14 +175,23 @@ fun AppNavigation(settingsDataStore: SettingsDataStore, appContainer: AppContain
             )
         }
         composable("reports") {
-            ReportsScreen(currency = currency, onNavigateBack = { navController.popBackStack() })
+            ReportsScreen(
+                currency = currency,
+                userId = currentUserId,
+                transactionRepository = appContainer.transactionRepository,
+                savingsGoalRepository = appContainer.savingsGoalRepository,
+                aiConversationRepository = appContainer.aiConversationRepository,
+                settingsDataStore = settingsDataStore,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable("accounts") {
             AccountsScreen(
                 currency = currency,
                 onNavigateBack = { navController.popBackStack() },
                 accountRepository = appContainer.accountRepository,
-                authManager = authManager
+                authManager = authManager,
+                database = appContainer.database
             )
         }
         composable("profile") {

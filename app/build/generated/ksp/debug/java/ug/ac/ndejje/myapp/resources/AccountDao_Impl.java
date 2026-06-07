@@ -1,7 +1,9 @@
 package ug.ac.ndejje.myapp.resources;
 
 import android.database.Cursor;
+import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.CoroutinesRoom;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
@@ -249,6 +251,63 @@ public final class AccountDao_Impl implements AccountDao {
         _statement.release();
       }
     });
+  }
+
+  @Override
+  public Object getAccountById(final int id,
+      final Continuation<? super AccountEntity> $completion) {
+    final String _sql = "SELECT * FROM accounts WHERE id = ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, id);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<AccountEntity>() {
+      @Override
+      @Nullable
+      public AccountEntity call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "userId");
+          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
+          final int _cursorIndexOfBalance = CursorUtil.getColumnIndexOrThrow(_cursor, "balance");
+          final int _cursorIndexOfCurrency = CursorUtil.getColumnIndexOrThrow(_cursor, "currency");
+          final int _cursorIndexOfLastFour = CursorUtil.getColumnIndexOrThrow(_cursor, "lastFour");
+          final int _cursorIndexOfModeId = CursorUtil.getColumnIndexOrThrow(_cursor, "modeId");
+          final AccountEntity _result;
+          if (_cursor.moveToFirst()) {
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final int _tmpUserId;
+            _tmpUserId = _cursor.getInt(_cursorIndexOfUserId);
+            final String _tmpName;
+            _tmpName = _cursor.getString(_cursorIndexOfName);
+            final String _tmpType;
+            _tmpType = _cursor.getString(_cursorIndexOfType);
+            final double _tmpBalance;
+            _tmpBalance = _cursor.getDouble(_cursorIndexOfBalance);
+            final String _tmpCurrency;
+            _tmpCurrency = _cursor.getString(_cursorIndexOfCurrency);
+            final String _tmpLastFour;
+            if (_cursor.isNull(_cursorIndexOfLastFour)) {
+              _tmpLastFour = null;
+            } else {
+              _tmpLastFour = _cursor.getString(_cursorIndexOfLastFour);
+            }
+            final int _tmpModeId;
+            _tmpModeId = _cursor.getInt(_cursorIndexOfModeId);
+            _result = new AccountEntity(_tmpId,_tmpUserId,_tmpName,_tmpType,_tmpBalance,_tmpCurrency,_tmpLastFour,_tmpModeId);
+          } else {
+            _result = null;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
   }
 
   @NonNull

@@ -19,8 +19,17 @@ class SettingsDataStore(private val context: Context) {
         val OFFLINE_MODE = booleanPreferencesKey("offline_mode")
         val ACCENT_COLOR = stringPreferencesKey("accent_color")
         val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
+        val GEMINI_API_KEY = stringPreferencesKey("gemini_api_key")
     }
     
+    val geminiApiKeyFlow: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[GEMINI_API_KEY] ?: ""
+    }
+
+    suspend fun setGeminiApiKey(key: String) {
+        context.dataStore.edit { prefs -> prefs[GEMINI_API_KEY] = key }
+    }
+
     val themeModeFlow: Flow<ThemeMode> = context.dataStore.data.map { prefs ->
         when (prefs[THEME_MODE]) {
             "LIGHT" -> ThemeMode.LIGHT

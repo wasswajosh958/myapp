@@ -44,12 +44,15 @@ fun HomeScreen(
     userProfileRepository: UserProfileRepository,
     database: AppDatabase,
     authManager: AuthManager,
-    savingsGoalRepository: SavingsGoalRepository
+    savingsGoalRepository: SavingsGoalRepository,
+    settingsDataStore: SettingsDataStore
 ) {
     val context = LocalContext.current
+    val geminiKey by settingsDataStore.geminiApiKeyFlow.collectAsState(initial = "")
+    
     val currentUserId = authManager.getCurrentUserId()
     val username = authManager.getCurrentUsername()
-    val assistant = remember { AiAssistant(context, database, currentUserId) }
+    val assistant = remember(geminiKey) { AiAssistant(context, database, currentUserId, geminiKey) }
     val scope = rememberCoroutineScope()
     val userProfile by userProfileRepository.getUserProfile(currentUserId).collectAsState(initial = null)
     val displayName = userProfile?.username ?: username

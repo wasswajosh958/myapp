@@ -12,6 +12,10 @@ enum class ThemeMode {
     LIGHT, DARK, SYSTEM
 }
 
+enum class AccentColor {
+    GREEN, BLUE, PURPLE
+}
+
 
 private val DarkColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,

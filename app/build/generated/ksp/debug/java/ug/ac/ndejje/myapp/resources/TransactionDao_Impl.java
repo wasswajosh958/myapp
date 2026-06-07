@@ -43,7 +43,7 @@ public final class TransactionDao_Impl implements TransactionDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `transactions` (`id`,`userId`,`title`,`category`,`amountValue`,`date`,`time`,`isExpense`,`isPending`,`accountId`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `transactions` (`id`,`userId`,`title`,`category`,`amountValue`,`date`,`time`,`isExpense`,`isPending`,`accountId`,`modeId`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
